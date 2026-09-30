@@ -30,9 +30,12 @@ const walkTxt = m => m <= 2500 ? `걸어서 약 ${Math.max(1, Math.round(m * 1.3
 const nearest = (p, n, maxM = Infinity) => FOOD.map(f => ({...f, dist: meters(p, f.p)})).filter(f => f.dist <= maxM).sort((a, b) => a.dist - b.dist).slice(0, n);
 
 // 하루 방문지 번호 (숙소는 따로, 같은 곳 다시 가면 같은 번호)
+// 일러스트/번호는 식사·방문지 위주로. 이동(move)은 숙소·공항교통(kix/ocat)만 남기고 뺀다
+const AIRPORT_PT = new Set(["kix", "ocat"]);
+const inRoute = it => it.pt && !(it.kind === "move" && it.pt !== "hotel" && !AIRPORT_PT.has(it.pt));
 function numbering(d){
   const num = {}; let c = 0;
-  d.items.forEach(it => { if (it.pt && it.pt !== "hotel" && !(it.pt in num)) num[it.pt] = ++c; });
+  d.items.forEach(it => { if (inRoute(it) && it.pt !== "hotel" && !(it.pt in num)) num[it.pt] = ++c; });
   return num;
 }
 
@@ -76,7 +79,7 @@ function entry(it, cls, num){
 const REGION = {"오사카": "#ffd6cf", "교토": "#ffe2b3", "나라": "#d4ebcb", "공항": "#d3e3f6"};
 function courseMap(d){
   const seq = [];
-  d.items.forEach(it => { if (it.pt && (!seq.length || seq[seq.length - 1].p !== it.pt)) seq.push({p: it.pt, t: ((it.t || "").match(/\d{1,2}:\d{2}/) || [""])[0]}); });
+  d.items.forEach(it => { if (inRoute(it) && (!seq.length || seq[seq.length - 1].p !== it.pt)) seq.push({p: it.pt, t: ((it.t || "").match(/\d{1,2}:\d{2}/) || [""])[0]}); });
   const num = numbering(d), X = [62, 180, 298], RH = 136, TOP = 92;
   const pos = seq.map((_, i) => { const r = Math.floor(i / 3), c = i % 3; return [X[r % 2 ? 2 - c : c], TOP + r * RH]; });
   const H = TOP + (Math.ceil(seq.length / 3) - 1) * RH + 104;
