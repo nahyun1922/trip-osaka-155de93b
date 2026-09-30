@@ -6,6 +6,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;
 const clean = s => esc(String(s || "").replace(/\s*【확인 필요】/g, ""));
 const chk = s => /확인 필요/.test(s || "");
 const gmap = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q + " 오사카");
+const gdir = (from, to) => "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(from) + "&destination=" + encodeURIComponent(to) + "&travelmode=transit";
 const gplace = f => f.cid ? `https://www.google.com/maps?cid=${f.cid}` : `https://www.google.com/maps/search/?api=1&query=${f.p[0]},${f.p[1]}`;
 const IMG = k => `img/${k}.jpg`;
 const short = d => d.date.slice(5).replace("-", "/") + "(" + d.dow + ")";
@@ -66,7 +67,7 @@ function entry(it, cls, num){
     const chips = (it.status === "tbd" ? ' <span class="chip t">미정</span>' : '') + (chk(it.n) ? ' <span class="chip t">확인 필요</span>' : '');
     body = `<div class="row">${it.img ? `<img src="${IMG(it.img)}" alt="" loading="lazy">` : `<div class="ico">${it.ic || "•"}</div>`}
       <div><div class="h">${esc(it.b)}${chips}</div>${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}</div>
-      ${it.map ? `<a class="mini" href="${gmap(it.map)}" target="_blank" rel="noopener">지도</a>` : ""}</div>${it.meal ? nearRow(it) : ""}`;
+      ${it.map ? `<a class="mini" href="${it.from && it.to ? gdir(it.from, it.to) : gmap(it.map)}" target="_blank" rel="noopener">${it.from && it.to ? "🧭 길찾기" : "지도"}</a>` : ""}</div>${it.meal ? nearRow(it) : ""}`;
   }
   return `<div class="entry ${type} ${cls}"${pt}>${n}<div class="tm">${esc(it.t)}${tag}</div>${body}</div>`;
 }
