@@ -222,18 +222,17 @@ function mealView(){
 }
 
 // ---------- 쇼핑 ----------
-function shopCard(post){
-  return `<div class="mcard shopcard">
-    <div class="ph"><img src="${IMG(post.img)}" alt="" loading="lazy"></div>
-    <div class="tx"><div class="h">${esc(post.title)}</div>
-    <div class="shoplist">${post.items.map(p => `<div class="shopitem"><b>${esc(p.n)}</b><div class="n">${clean(p.d)}</div></div>`).join("")}</div>
-    ${post.note ? `<div class="small" style="margin-top:8px">${clean(post.note)}</div>` : ""}</div></div>`;
+function shopTile(p){
+  return `<div class="stile">
+    <div class="ph">${p.img ? `<img src="${IMG(p.img)}" alt="" loading="lazy">` : `<div class="noimg">${p.ic || "🛍️"}</div>`}</div>
+    <div class="tx"><b>${esc(p.n)}</b><div class="n">${clean(p.d)}</div></div></div>`;
 }
 function shopView(){
   return `<div class="sectitle">쇼핑 리스트 <span class="jp">買物</span></div>
     <div class="small" style="margin:-4px 18px 10px">SNS에서 모은 쇼핑템을 매장별로 정리했어요. 실제로 사보고 후기 쓴 게시물 기준.</div>` +
     SHOPLIST.map(cat => `<div class="sectitle" style="font-size:16px;margin-top:22px">${cat.ic} ${esc(cat.cat)}</div>
-      <div class="mlist">${cat.posts.map(shopCard).join("")}</div>`).join("");
+      ${cat.note ? `<div class="small" style="margin:-4px 18px 8px">${clean(cat.note)}</div>` : ""}
+      <div class="sgrid">${cat.items.map(shopTile).join("")}</div>`).join("");
 }
 
 // ---------- 교통 / 정보 ----------
