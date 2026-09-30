@@ -222,17 +222,34 @@ function mealView(){
 }
 
 // ---------- 쇼핑 ----------
-function shopTile(p){
-  return `<div class="stile">
+const SHOP_FLAT = SHOPLIST.flatMap(cat => cat.items.map(it => ({...it, cat: cat.cat})));
+function shopTile(p, i){
+  return `<div class="stile" data-shop="${i}">
     <div class="ph">${p.img ? `<img src="${IMG(p.img)}" alt="" loading="lazy">` : `<div class="noimg">${p.ic || "🛍️"}</div>`}</div>
     <div class="tx"><b>${esc(p.n)}</b><div class="n">${clean(p.d)}</div></div></div>`;
 }
 function shopView(){
+  let i = -1;
   return `<div class="sectitle">쇼핑 리스트 <span class="jp">買物</span></div>
-    <div class="small" style="margin:-4px 18px 10px">SNS에서 모은 쇼핑템을 매장별로 정리했어요. 실제로 사보고 후기 쓴 게시물 기준.</div>` +
+    <div class="small" style="margin:-4px 18px 10px">SNS에서 모은 쇼핑템을 매장별로 정리했어요. 눌러보면 가격·추천 이유를 볼 수 있어요.</div>` +
     SHOPLIST.map(cat => `<div class="sectitle" style="font-size:16px;margin-top:22px">${cat.ic} ${esc(cat.cat)}</div>
       ${cat.note ? `<div class="small" style="margin:-4px 18px 8px">${clean(cat.note)}</div>` : ""}
-      <div class="sgrid">${cat.items.map(shopTile).join("")}</div>`).join("");
+      <div class="sgrid">${cat.items.map(p => shopTile(p, ++i)).join("")}</div>`).join("");
+}
+function shopBlock(p){
+  return `<div class="sh-ph ${p.img ? "" : "none wave"}" ${p.img ? `style="background-image:url(${IMG(p.img)})"` : ""}><div class="grab"></div><button class="x" data-close>✕</button></div>
+    <div class="sh-bd">
+      <div class="jp">${esc(p.cat)}</div><h2>${esc(p.n)}</h2>
+      ${p.price ? `<div class="facts"><div class="fact"><div class="k">가격</div><div class="v">${esc(p.price)}</div></div></div>` : ""}
+      <h3>왜 좋아요</h3><div class="story"><p>${clean(p.why)}</p></div>
+    </div>`;
+}
+function openShop(i){
+  const p = SHOP_FLAT[+i]; if (!p) return;
+  $("#sheetin").innerHTML = shopBlock(p) + '<div class="wave" style="margin:10px 0 30px"></div>';
+  $("#sheetin").scrollTop = 0;
+  $("#veil").classList.add("on"); $("#sheet").classList.add("on"); document.body.style.overflow = "hidden";
+  history.pushState({sheet: 1}, "");
 }
 
 // ---------- 교통 / 정보 ----------
@@ -275,8 +292,9 @@ function render(){
   const n = document.querySelector(".entry.now"); if (n && !qs.get("noscroll")) setTimeout(() => n.scrollIntoView({block: "center"}), 300);
 }
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-info],[data-day],[data-view],[data-goto],[data-close],[data-base],[data-more]"); if (!t) return;
+  const t = e.target.closest("[data-info],[data-shop],[data-day],[data-view],[data-goto],[data-close],[data-base],[data-more]"); if (!t) return;
   if (t.dataset.info) return openInfo(t.dataset.info);
+  if (t.dataset.shop !== undefined) return openShop(t.dataset.shop);
   if (t.dataset.close !== undefined) return closeInfo();
   if (t.dataset.day){ day = +t.dataset.day; render(); scrollTo(0, 0); }
   if (t.dataset.view){ view = t.dataset.view; showN = 8; render(); scrollTo(0, 0); }
