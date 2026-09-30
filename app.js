@@ -74,7 +74,7 @@ function entry(it, cls, num){
 const REGION = {"오사카": "#ffd6cf", "교토": "#ffe2b3", "나라": "#d4ebcb", "공항": "#d3e3f6"};
 function courseMap(d){
   const seq = [];
-  d.items.forEach(it => { if (it.pt && (!seq.length || seq[seq.length - 1].p !== it.pt)) seq.push({p: it.pt, t: ((it.t || "").match(/d{1,2}:d{2}/) || [""])[0]}); });
+  d.items.forEach(it => { if (it.pt && (!seq.length || seq[seq.length - 1].p !== it.pt)) seq.push({p: it.pt, t: ((it.t || "").match(/\d{1,2}:\d{2}/) || [""])[0]}); });
   const num = numbering(d), X = [62, 180, 298], RH = 136, TOP = 92;
   const pos = seq.map((_, i) => { const r = Math.floor(i / 3), c = i % 3; return [X[r % 2 ? 2 - c : c], TOP + r * RH]; });
   const H = TOP + (Math.ceil(seq.length / 3) - 1) * RH + 104;
