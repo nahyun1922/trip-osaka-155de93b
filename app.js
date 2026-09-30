@@ -207,8 +207,7 @@ function mealCard(it){
 }
 function mealView(){
   const d = DAYS[day];
-  return `<div class="sectitle">끼니 계획 <span class="jp">食</span></div>
-    <div class="small" style="margin:-4px 18px 6px">사진은 대부분 <b>음식 종류 예시</b>예요. 식당이 정해지면 바꿀게요.</div>` +
+  return `<div class="sectitle">끼니 계획 <span class="jp">食</span></div>` +
     DAYS.map(d => {
       const meals = d.items.filter(x => x.meal === "점심" || x.meal === "저녁");
       const snacks = d.items.filter(x => x.meal === "간식");
