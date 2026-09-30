@@ -1643,6 +1643,34 @@ window.TRIP = {
  },
  "CREDITS": [
   [
+   "쇼핑 제품사진: 판다안닌도후·폴로쇼콜라 · All About(allabout.co.jp)",
+   "https://news.allabout.co.jp/articles/o/81765/"
+  ],
+  [
+   "쇼핑 제품사진: 트러플 감자칩 · All About",
+   "https://news.allabout.co.jp/articles/o/37663/"
+  ],
+  [
+   "쇼핑 제품사진: Wpc 우양산 · Amazon",
+   "https://www.gizmodo.jp/article/291731-amazon-wpc-foldingumbrella/"
+  ],
+  [
+   "쇼핑 제품사진: 토미카 · response.jp",
+   "https://response.jp/article/2020/05/15/334603.html"
+  ],
+  [
+   "쇼핑 제품사진: 미피 인형 · gamepedia",
+   "https://premium.gamepedia.jp/hobby/archives/214529"
+  ],
+  [
+   "쇼핑 제품사진: 키티템 · BUYMA",
+   "https://www.buyma.com/item/135581522/"
+  ],
+  [
+   "쇼핑 제품사진: 원데이렌즈 · Yahoo!オークション",
+   "https://auctions.yahoo.co.jp/jp/auction/v1231059705"
+  ],
+  [
    "Arashiyama",
    "https://en.wikipedia.org/wiki/Arashiyama"
   ],
@@ -2359,11 +2387,13 @@ window.TRIP = {
     },
     {
      "n": "폴로 쇼콜라",
-     "d": "초콜릿 과자"
+     "d": "초콜릿 과자(라그노오 제품, 칼디 스테디셀러)",
+     "img": "shopping/DJya3MazVyX_2"
     },
     {
      "n": "판다 안닌도후",
-     "d": "판다 모양 아몬드두부 디저트"
+     "d": "판다 모양 아몬드두부 디저트",
+     "img": "shopping/DJya3MazVyX_3"
     },
     {
      "n": "워터드립 커피",
@@ -2382,7 +2412,8 @@ window.TRIP = {
     },
     {
      "n": "트러플 감자칩",
-     "d": "트러플 향 감자칩"
+     "d": "트러플 향 감자칩",
+     "img": "shopping/DJya3MazVyX_7"
     }
    ]
   },
@@ -2531,23 +2562,28 @@ window.TRIP = {
     },
     {
      "n": "Wpc 우양산",
-     "d": "가볍고 컴팩트, 가방에 부담 없이 휴대"
+     "d": "가볍고 컴팩트, 가방에 부담 없이 휴대",
+     "img": "shopping/DczdSFJTJb8_7"
     },
     {
      "n": "토미카(자동차 장난감)",
-     "d": "한국보다 종류 많고 저렴(개당 540엔~)"
+     "d": "한국보다 종류 많고 저렴(개당 540엔~) · 사진은 예시(디자인은 매번 다름)",
+     "img": "shopping/DczdSFJTJb8_8"
     },
     {
      "n": "봉통 미피 인형·키링",
-     "d": "한국 백화점보다 환율 적용시 훨씬 저렴"
+     "d": "한국 백화점보다 환율 적용시 훨씬 저렴 · 사진은 미피 캐릭터 예시",
+     "img": "shopping/DczdSFJTJb8_9"
     },
     {
      "n": "산리오 키티템",
-     "d": "시내 산리오매장보다 종류 많음, 돈키호테는 다른 상품과 합산할인 가능"
+     "d": "시내 산리오매장보다 종류 많음, 돈키호테는 다른 상품과 합산할인 가능 · 사진은 키티 캐릭터 예시",
+     "img": "shopping/DczdSFJTJb8_10"
     },
     {
      "n": "원데이 렌즈(15일용 30개)",
-     "d": "13,000~18,000원대, 한국 비슷한 사양은 약 5만원"
+     "d": "13,000~18,000원대, 한국 비슷한 사양은 약 5만원",
+     "img": "shopping/DczdSFJTJb8_11"
     }
    ]
   }
