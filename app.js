@@ -237,10 +237,10 @@ function shopView(){
       <div class="sgrid">${cat.items.map(p => shopTile(p, ++i)).join("")}</div>`).join("");
 }
 function shopBlock(p){
-  return `<div class="sh-ph ${p.img ? "" : "none wave"}" ${p.img ? `style="background-image:url(${IMG(p.img)})"` : ""}><div class="grab"></div><button class="x" data-close>✕</button></div>
+  return `<div class="sh-ph prod ${p.img ? "" : "none wave"}" ${p.img ? `style="background-image:url(${IMG(p.img)})"` : ""}><div class="grab"></div><button class="x" data-close>✕</button></div>
     <div class="sh-bd">
-      <div class="jp">${esc(p.cat)}</div><h2>${esc(p.n)}</h2>
-      ${p.price ? `<div class="facts"><div class="fact"><div class="k">가격</div><div class="v">${esc(p.price)}</div></div></div>` : ""}
+      ${p.jp ? `<div class="jp">${esc(p.jp)}</div>` : ""}<h2>${esc(p.n)}</h2>
+      <div class="facts"><div class="fact"><div class="k">매장</div><div class="v">${esc(p.cat)}</div></div>${p.price ? `<div class="fact"><div class="k">가격</div><div class="v">${esc(p.price)}</div></div>` : ""}</div>
       <h3>왜 좋아요</h3><div class="story"><p>${clean(p.why)}</p></div>
     </div>`;
 }

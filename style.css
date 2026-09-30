@@ -144,6 +144,8 @@ button{font-family:inherit}
 .sh-ph{position:relative;height:250px;background:var(--paper2) center/cover}
 .sh-ph::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25),transparent 30%,transparent 55%,var(--card))}
 .sh-ph.none{height:120px}
+.sh-ph.prod{height:320px;background-color:#fbf6ee;background-size:contain}
+.sh-ph.prod::after{background:linear-gradient(180deg,rgba(0,0,0,.12),transparent 18%,transparent 78%,var(--card))}
 .grab{position:absolute;top:8px;left:50%;width:42px;height:5px;margin-left:-21px;border-radius:3px;background:rgba(255,255,255,.8);z-index:3}
 .x{position:absolute;right:12px;top:14px;z-index:3;width:38px;height:38px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;font-size:20px;cursor:pointer}
 .sh-bd{padding:0 22px 40px;margin-top:-34px;position:relative;z-index:2}
