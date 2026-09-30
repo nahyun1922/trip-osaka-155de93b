@@ -204,3 +204,20 @@ footer{text-align:center;margin-top:30px;color:var(--sub);font-size:12px}
 .course .cname{font:700 13.5px var(--sans);fill:#2a211b;text-anchor:middle}
 .course .ctime{font:500 11px var(--sans);fill:#8a7c6d;text-anchor:middle}
 .course .clg{font:700 11px var(--sans);fill:#5a4a3c;text-anchor:middle;dominant-baseline:central}
+
+/* 이야기 창: 두 번째 장소 */
+.sh-next{margin:18px 22px 0;border-top:1px dashed var(--line);padding-top:22px}
+.sh-next img{width:100%;height:180px;object-fit:cover;border-radius:18px;display:block}
+.sh-bd.sh-2{margin-top:14px}
+/* 먹거리: 점심·저녁 카드 + 간식 바 */
+.mlist{display:grid;gap:14px;padding:0 14px}
+.mcard{background:var(--card);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line)}
+.mcard .ph{aspect-ratio:16/9}
+.mcard .k{font-size:13px;color:var(--shu-deep);font-weight:700}
+.mcard .h{font-size:20px}
+.snacks{display:grid;gap:8px;padding:10px 14px 0}
+.snack{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;background:#fbeee6;border:1px solid #f1d6c8;border-radius:14px;padding:10px 14px;font-size:15px}
+.snack .si{align-self:center}.snack .st{font-size:12px;font-weight:700;color:var(--shu-deep)}
+.snack b{font-weight:700}.snack .sn{font-size:13px;color:var(--sub)}
+.snack.empty{background:transparent;border-style:dashed;color:var(--sub)}
+@media (prefers-color-scheme:dark){.snack{background:#2c211c;border-color:#4a342a}}

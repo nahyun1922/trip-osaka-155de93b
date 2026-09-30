@@ -51,8 +51,9 @@ function entry(it, cls, num){
   if (it.img && it.kind !== "move"){
     type = "big";
     const pills = `${it.status === "tbd" ? '<span class="pill t">미정</span>' : ''}${it.status === "ok" ? '<span class="pill o">확정</span>' : ''}${chk(it.n) ? '<span class="pill c">확인 필요</span>' : ''}`;
-    const story = hasInfo(it.info) ? `<button class="b-story" data-info="${it.info}">📖 이야기 읽기</button>` : "";
-    const story2 = hasInfo(it.info2) ? `<button class="b-story" data-info="${it.info2}">📖 ${esc(INFO[it.info2].name)}</button>` : "";
+    const keys = [it.info, it.info2].filter(hasInfo).join(",");
+    const story = keys ? `<button class="b-story" data-info="${keys}">📖 이야기 읽기</button>` : "";
+    const story2 = "";
     const mp = it.map ? `<a class="b-map" href="${gmap(it.map)}" target="_blank" rel="noopener">📍 길찾기</a>` : "";
     body = `<div class="cardx"><div class="ph"${hasInfo(it.info) ? ` data-info="${it.info}"` : ""}><img src="${IMG(it.img)}" alt="" loading="lazy" style="object-position:${it.pos || "50% 50%"}">
       <div class="pl">${pills}</div>${it.eg ? `<span class="eg">${esc(it.eg)}</span>` : ""}</div>
@@ -114,11 +115,9 @@ function dayView(d, di){
   if (isToday) d.items.forEach((it, i) => { if (it.at && toMin(it.at) <= nowMin) cur = i; });
   const num = numbering(d);
   const tbd = d.items.filter(x => x.status === "tbd").length, ok = d.items.filter(x => x.status === "ok").length;
-  const stops = Object.entries(num).map(([p, k]) => `<button class="stop" data-goto="${p}"><i>${k}</i>${esc(PTNAME[p])}</button>`).join("");
   return `<div class="mapbox">${courseMap(d)}
       <div class="mapcap"><div class="d">${d.label} · ${short(d)}${isToday ? ' · 오늘' : ''}</div><h2>${esc(d.title)}</h2>
       <div class="m">방문 ${Object.keys(num).length}곳 · 그림을 누르면 그 일정으로 이동해요</div></div></div>
-    <div class="stops">${stops}</div>
     <div class="sum">${tbd ? `<span class="chip t">미정 ${tbd}건</span>` : ''}${ok ? `<span class="chip o">확정 ${ok}건</span>` : ''}</div>
     ${d.warn ? `<div class="alert"><span>⚠️</span><span>${esc(d.warn)}</span></div>` : ""}
     <div class="sectitle">하루 일정 <span class="jp">${d.kanji}日目</span></div>
@@ -126,20 +125,24 @@ function dayView(d, di){
 }
 
 // ---------- 이야기 창 ----------
-function openInfo(k){
-  const x = INFO[k]; if (!x || x.missing) return;
-  const img = HAS_IMG.includes(k);
-  $("#sheetin").innerHTML = `<div class="sh-ph ${img ? "" : "none wave"}" ${img ? `style="background-image:url(${IMG(k)})"` : ""}><div class="grab"></div><button class="x" data-close>✕</button></div>
-    <div class="sh-bd">
+function infoBlock(k, first){
+  const x = INFO[k], img = HAS_IMG.includes(k);
+  const top = first
+    ? `<div class="sh-ph ${img ? "" : "none wave"}" ${img ? `style="background-image:url(${IMG(k)})"` : ""}><div class="grab"></div><button class="x" data-close>✕</button></div>`
+    : `<div class="sh-next">${img ? `<img src="${IMG(k)}" alt="" loading="lazy">` : ""}</div>`;
+  return `${top}<div class="sh-bd${first ? "" : " sh-2"}">
       <div class="jp">${esc(x.local)}</div><h2>${esc(x.name)}</h2>
       ${x.lead ? `<p class="lead">${esc(x.lead)}</p>` : ""}
       ${x.facts && x.facts.length ? `<div class="facts">${x.facts.map(f => `<div class="fact"><div class="k">${esc(f[0])}</div><div class="v">${esc(f[1])}</div></div>`).join("")}</div>` : ""}
       ${x.story && x.story.length ? `<h3>이야기</h3><div class="story">${x.story.map(p => `<p>${esc(p)}</p>`).join("")}</div>` : ""}
       ${x.look && x.look.length ? `<h3>놓치지 말 것</h3><ul class="look">${x.look.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
       ${x.tips && x.tips.length ? `<h3>알아두면 좋아요</h3>${x.tips.map(p => `<div class="tip">${esc(p)}</div>`).join("")}` : ""}
-      <div class="wave" style="margin-top:26px"></div>
       <div class="srcs">출처 · ${(x.src || []).map(s => `<a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a>`).join(" · ")}</div>
     </div>`;
+}
+function openInfo(keys){
+  const ks = keys.split(",").filter(hasInfo); if (!ks.length) return;
+  $("#sheetin").innerHTML = ks.map((k, i) => infoBlock(k, i === 0)).join("") + '<div class="wave" style="margin:10px 0 30px"></div>';
   $("#sheetin").scrollTop = 0;
   $("#veil").classList.add("on"); $("#sheet").classList.add("on"); document.body.style.overflow = "hidden";
   history.pushState({sheet: 1}, "");
@@ -193,19 +196,28 @@ function locate(){
     {enableHighAccuracy: true, timeout: 12000, maximumAge: 60000});
 }
 
+function mealCard(it){
+  const pills = `${it.status === "tbd" ? '<span class="pill t">미정</span>' : ''}${it.status === "ok" ? '<span class="pill o">확정</span>' : ''}`;
+  return `<div class="mcard">
+    ${it.img ? `<div class="ph"${hasInfo(it.info) ? ` data-info="${it.info}"` : ""}><img src="${IMG(it.img)}" alt="" loading="lazy"><div class="pl">${pills}</div>${it.eg ? `<span class="eg">${esc(it.eg)}</span>` : ""}</div>` : ""}
+    <div class="tx"><div class="k">${esc(it.meal)} · ${esc(it.t)}</div><div class="h">${esc(it.b)}</div>
+    ${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}${it.img ? "" : `<div style="margin-top:6px">${pills}</div>`}${nearRow(it)}</div></div>`;
+}
 function mealView(){
   const d = DAYS[day];
-  return `<div class="sectitle">가까운 맛집 <span class="jp">近所</span></div>
-    <div class="small" style="margin:-4px 18px 10px">기준을 고르면 가까운 순으로 보여 줘요. 누르면 구글 지도가 열려요. (방문지 칸은 ${d.label} 기준 · 일정 탭에서 날짜를 바꾸면 따라 바뀜)</div>
-    ${finder()}
-    <div class="sectitle">끼니 계획 <span class="jp">食</span></div>
+  return `<div class="sectitle">끼니 계획 <span class="jp">食</span></div>
     <div class="small" style="margin:-4px 18px 6px">사진은 대부분 <b>음식 종류 예시</b>예요. 식당이 정해지면 바꿀게요.</div>` +
-    DAYS.map(d => `<div class="sectitle" style="font-size:16px;margin-top:20px">${d.label} · ${short(d)}</div>
-      <div class="grid">${d.items.filter(x => x.meal).map(it => `<div class="g">
-        ${it.img ? `<div class="ph"${hasInfo(it.info) ? ` data-info="${it.info}"` : ""}><img src="${IMG(it.img)}" alt="" loading="lazy"><div class="pl">${it.status === "tbd" ? '<span class="pill t">미정</span>' : ''}${it.status === "ok" ? '<span class="pill o">확정</span>' : ''}</div>${it.eg ? `<span class="eg">${esc(it.eg)}</span>` : ""}</div>`
-          : `<div class="ph noimg">${it.ic || "🍽️"}<div class="pl">${it.status === "tbd" ? '<span class="pill t">미정</span>' : ''}</div></div>`}
-        <div class="tx"><div class="k">${esc(it.meal)} · ${esc(it.t)}</div><div class="h">${esc(it.b)}</div>
-        ${it.n ? `<div class="n" style="font-size:13px">${clean(it.n)}</div>` : ""}</div></div>`).join("")}</div>`).join("");
+    DAYS.map(d => {
+      const meals = d.items.filter(x => x.meal === "점심" || x.meal === "저녁");
+      const snacks = d.items.filter(x => x.meal === "간식");
+      return `<div class="sectitle" style="font-size:16px;margin-top:22px">${d.label} · ${short(d)}</div>
+        <div class="mlist">${meals.map(mealCard).join("")}</div>
+        <div class="snacks">${snacks.length ? snacks.map(it => `<div class="snack"><span class="si">🍡</span><span class="st">간식 · ${esc(it.t)}</span><b>${esc(it.b)}</b>${it.n ? `<span class="sn">${clean(it.n)}</span>` : ""}</div>`).join("")
+          : `<div class="snack empty"><span class="si">🍡</span><span class="st">간식</span><span class="sn">아직 계획 없음</span></div>`}</div>`;
+    }).join("") + `
+    <div class="sectitle" style="margin-top:34px">가까운 맛집 <span class="jp">近所</span></div>
+    <div class="small" style="margin:-4px 18px 10px">기준을 고르면 가까운 순으로 보여 줘요. 누르면 구글 지도가 열려요. (방문지 칸은 ${d.label} 기준 · 일정 탭에서 날짜를 바꾸면 따라 바뀜)</div>
+    ${finder()}`;
 }
 
 // ---------- 교통 / 정보 ----------
@@ -213,9 +225,7 @@ function transView(){
   const leg = (k, a) => `<div class="leg"><div><div class="k">${k} · ${esc(a[1])}</div><div class="big">${a[0]}</div></div>
       <div class="mid">${esc(a[4])}</div><div style="text-align:right"><div class="k">${esc(a[3])}</div><div class="big">${a[2]}</div></div></div>`;
   return `<div class="sectitle">항공편 <span class="jp">航空</span></div>` +
-    FLIGHTS.map(f => `<div class="pass"><div class="hd"><span>${f.who}</span><span>${f.n}</span></div>${leg("가는편 11/15", f.out)}${leg("오는편 11/18", f.back)}</div>`).join("") +
-    `<div class="sectitle">이동 한눈에 <span class="jp">交通</span></div>` +
-    TRANSPORT.map(r => `<div class="tcard"><div class="ico">${r[0]}</div><div><div class="h">${esc(r[1])}</div><div class="n">${esc(r[2])}</div></div></div>`).join("");
+    FLIGHTS.map(f => `<div class="pass"><div class="hd"><span>${f.who}</span><span>${f.n}</span></div>${leg("가는편 11/15", f.out)}${leg("오는편 11/18", f.back)}</div>`).join("");
 }
 function infoView(){
   return `<div class="sectitle">숙소 <span class="jp">宿</span></div>
