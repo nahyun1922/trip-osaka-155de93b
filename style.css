@@ -221,3 +221,27 @@ footer{text-align:center;margin-top:30px;color:var(--sub);font-size:12px}
 .snack b{font-weight:700}.snack .sn{font-size:13px;color:var(--sub)}
 .snack.empty{background:transparent;border-style:dashed;color:var(--sub)}
 @media (prefers-color-scheme:dark){.snack{background:#2c211c;border-color:#4a342a}}
+
+/* 끼니 계획: 점심·저녁 한 줄 */
+.mlist.two{grid-template-columns:1fr 1fr;gap:10px}
+.mlist.two .mcard:only-child{grid-column:1/-1}
+.mlist.two .mcard .ph{aspect-ratio:4/3}
+.mlist.two .tx{padding:10px 11px 12px}
+.mlist.two .mcard .k{font-size:12px}
+.mlist.two .mcard .h{font-size:16px}
+.mlist.two .tx .n{font-size:13px;line-height:1.5}
+.mlist.two .pl{left:6px;top:6px}.mlist.two .eg{left:7px;bottom:5px;font-size:10px}
+.mlist.two .near .k{font-size:11px}
+/* 식당 메뉴 */
+.menu{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.menu .mi{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px dashed var(--line)}
+.menu .mi:first-child{border-top:0}
+.menu .mi b{display:block;font-size:15px;line-height:1.4}
+.menu .mi span{font-family:var(--mincho);font-size:12px;color:var(--gold)}
+.menu .mi em{margin-left:auto;flex:0 0 auto;font-style:normal;font-weight:700;color:var(--shu-deep);font-variant-numeric:tabular-nums}
+.menu + .tip{margin-top:10px}
+/* 맨 위로 */
+.totop{position:fixed;right:16px;bottom:calc(88px + env(safe-area-inset-bottom));z-index:650;width:46px;height:46px;border-radius:50%;
+  border:1px solid var(--line);background:var(--card);color:var(--shu);font:700 22px/1 var(--sans);box-shadow:var(--shadow);cursor:pointer;
+  opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s}
+.totop.on{opacity:1;transform:none;pointer-events:auto}

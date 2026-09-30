@@ -134,7 +134,8 @@ function infoBlock(k, first){
       <div class="jp">${esc(x.local)}</div><h2>${esc(x.name)}</h2>
       ${x.lead ? `<p class="lead">${esc(x.lead)}</p>` : ""}
       ${x.facts && x.facts.length ? `<div class="facts">${x.facts.map(f => `<div class="fact"><div class="k">${esc(f[0])}</div><div class="v">${esc(f[1])}</div></div>`).join("")}</div>` : ""}
-      ${x.story && x.story.length ? `<h3>이야기</h3><div class="story">${x.story.map(p => `<p>${esc(p)}</p>`).join("")}</div>` : ""}
+      ${x.menu ? `<h3>${esc(x.menu.title)}</h3><div class="menu">${x.menu.items.map(m => `<div class="mi"><div><b>${esc(m[0])}</b><span>${esc(m[1])}</span></div><em>${esc(m[2])}</em></div>`).join("")}</div>${x.menu.note ? `<div class="tip">${esc(x.menu.note)}</div>` : ""}` : ""}
+      ${x.story && x.story.length ? `<h3>${x.menu ? "음식 이야기" : "이야기"}</h3><div class="story">${x.story.map(p => `<p>${esc(p)}</p>`).join("")}</div>` : ""}
       ${x.look && x.look.length ? `<h3>놓치지 말 것</h3><ul class="look">${x.look.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
       ${x.tips && x.tips.length ? `<h3>알아두면 좋아요</h3>${x.tips.map(p => `<div class="tip">${esc(p)}</div>`).join("")}` : ""}
       <div class="srcs">출처 · ${(x.src || []).map(s => `<a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a>`).join(" · ")}</div>
@@ -211,7 +212,7 @@ function mealView(){
       const meals = d.items.filter(x => x.meal === "점심" || x.meal === "저녁");
       const snacks = d.items.filter(x => x.meal === "간식");
       return `<div class="sectitle" style="font-size:16px;margin-top:22px">${d.label} · ${short(d)}</div>
-        <div class="mlist">${meals.map(mealCard).join("")}</div>
+        <div class="mlist two">${meals.map(mealCard).join("")}</div>
         <div class="snacks">${snacks.length ? snacks.map(it => `<div class="snack"><span class="si">🍡</span><span class="st">간식 · ${esc(it.t)}</span><b>${esc(it.b)}</b>${it.n ? `<span class="sn">${clean(it.n)}</span>` : ""}</div>`).join("")
           : `<div class="snack empty"><span class="si">🍡</span><span class="st">간식</span><span class="sn">아직 계획 없음</span></div>`}</div>`;
     }).join("") + `
@@ -270,6 +271,10 @@ document.addEventListener("click", e => {
   if (t.dataset.goto){ const el = document.querySelector(`.entry[data-pt="${t.dataset.goto}"]`); if (el){ el.classList.add("in"); el.scrollIntoView({behavior: "smooth", block: "center"}); } }
 });
 $("#veil").addEventListener("click", () => closeInfo());
+// 맨 위로
+const topBtn = $("#totop");
+addEventListener("scroll", () => topBtn.classList.toggle("on", scrollY > 500), {passive: true});
+topBtn.addEventListener("click", () => scrollTo({top: 0, behavior: "smooth"}));
 render();
 if (qs.get("info")) openInfo(qs.get("info"));
 try { navigator.serviceWorker && navigator.serviceWorker.register("sw.js"); } catch (e){}
