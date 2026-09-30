@@ -1,5 +1,5 @@
 // 화면 그리기. 일정 내용은 data.js 에 있습니다.
-const {UPDATED, SOURCE_VERSION, LODGING, FLIGHTS, PT, PTNAME, DAYS, TRANSPORT, TODO, INFO, CREDITS, HAS_IMG, FOOD} = window.TRIP;
+const {TITLE, UPDATED, SOURCE_VERSION, LODGING, FLIGHTS, PT, PTNAME, PTICON, DAYS, TRANSPORT, TODO, INFO, CREDITS, HAS_IMG, FOOD} = window.TRIP;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -37,9 +37,9 @@ function numbering(d){
 
 // ---------- 일정 ----------
 function nearRow(it){
-  const p = it.pt ? PT[it.pt] : null; if (!p) return "";
-  const list = nearest(p, 4, 1000); if (!list.length) return "";
-  return `<div class="near"><div class="k">🍴 근처 저장한 맛집</div><div class="l">${list.map(f =>
+  const k = it.near || it.pt, p = k ? PT[k] : null; if (!p) return "";
+  const list = it.meal ? nearest(p, 8, 1500) : nearest(p, 4, 1000); if (!list.length) return "";
+  return `<div class="near"><div class="k">🍴 근처 맛집${it.meal ? ` · ${k === "hotel" ? "숙소" : esc(PTNAME[k])} 기준 가까운 순` : ""}</div><div class="l">${list.map(f =>
     `<a class="nf" href="${gplace(f)}" target="_blank" rel="noopener"><b>${esc(f.n)}</b><span>${distTxt(f.dist)} · ${walkTxt(f.dist)}</span></a>`).join("")}</div></div>`;
 }
 
@@ -65,9 +65,47 @@ function entry(it, cls, num){
     const chips = (it.status === "tbd" ? ' <span class="chip t">미정</span>' : '') + (chk(it.n) ? ' <span class="chip t">확인 필요</span>' : '');
     body = `<div class="row">${it.img ? `<img src="${IMG(it.img)}" alt="" loading="lazy">` : `<div class="ico">${it.ic || "•"}</div>`}
       <div><div class="h">${esc(it.b)}${chips}</div>${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}</div>
-      ${it.map ? `<a class="mini" href="${gmap(it.map)}" target="_blank" rel="noopener">지도</a>` : ""}</div>`;
+      ${it.map ? `<a class="mini" href="${gmap(it.map)}" target="_blank" rel="noopener">지도</a>` : ""}</div>${it.meal ? nearRow(it) : ""}`;
   }
   return `<div class="entry ${type} ${cls}"${pt}>${n}<div class="tm">${esc(it.t)}${tag}</div>${body}</div>`;
+}
+
+// ---------- 코스 그림 ----------
+const REGION = {"오사카": "#ffd6cf", "교토": "#ffe2b3", "나라": "#d4ebcb", "공항": "#d3e3f6"};
+function courseMap(d){
+  const seq = [];
+  d.items.forEach(it => { if (it.pt && (!seq.length || seq[seq.length - 1].p !== it.pt)) seq.push({p: it.pt, t: ((it.t || "").match(/d{1,2}:d{2}/) || [""])[0]}); });
+  const num = numbering(d), X = [62, 180, 298], RH = 136, TOP = 92;
+  const pos = seq.map((_, i) => { const r = Math.floor(i / 3), c = i % 3; return [X[r % 2 ? 2 - c : c], TOP + r * RH]; });
+  const H = TOP + (Math.ceil(seq.length / 3) - 1) * RH + 104;
+  let path = `M${pos[0][0]} ${pos[0][1]}`;
+  for (let i = 1; i < pos.length; i++){
+    const [x1, y1] = pos[i - 1], [x2, y2] = pos[i];
+    if (y1 === y2) path += ` L${x2} ${y2}`;
+    else { const dx = x1 > 180 ? 64 : -64; path += ` C${x1 + dx} ${y1} ${x2 + dx} ${y2} ${x2} ${y2}`; }
+  }
+  const regions = [...new Set(seq.map(s => (PTICON[s.p] || [])[2]).filter(Boolean))];
+  const nodes = seq.map((s, i) => {
+    const [x, y] = pos[i], [ic, nm, rg] = PTICON[s.p] || ["📍", PTNAME[s.p], "오사카"], n = num[s.p];
+    const tag = i === 0 ? "출발" : i === seq.length - 1 ? "도착" : "";
+    return `<g class="cn" data-goto="${s.p}" style="--d:${i * 70}ms">
+      <circle cx="${x}" cy="${y + 3}" r="33" fill="rgba(90,60,30,.13)"/>
+      <circle cx="${x}" cy="${y}" r="32" fill="${REGION[rg] || "#eee"}" stroke="#fff" stroke-width="4"/>
+      <text x="${x}" y="${y + 2}" class="ce">${ic}</text>
+      ${n ? `<circle cx="${x + 24}" cy="${y - 24}" r="12" fill="#c0392b" stroke="#fff" stroke-width="2.5"/><text x="${x + 24}" y="${y - 23.5}" class="cnum">${n}</text>` : ""}
+      ${tag ? `<rect x="${x - 21}" y="${y - 54}" width="42" height="19" rx="9.5" fill="#283a5b"/><text x="${x}" y="${y - 44}" class="ctag">${tag}</text>` : ""}
+      <text x="${x}" y="${y + 52}" class="cname">${esc(nm)}</text>
+      <text x="${x}" y="${y + 68}" class="ctime">${esc(s.t)}</text></g>`;
+  }).join("");
+  const deco = `<g opacity=".9"><path d="M22 40c0-8 10-12 16-6 3-7 16-7 18 2 7-1 10 8 3 11H26c-6 0-8-4-4-7z" fill="#fff"/>
+    <path d="M300 ${H - 30}c0-7 9-10 14-5 3-6 14-6 16 2 6-1 9 7 3 10h-29c-5 0-7-4-4-7z" fill="#fff"/></g>
+    <g fill="none" stroke="#e7cfa3" stroke-width="1.6" opacity=".7"><path d="M250 30q6-6 12 0t12 0t12 0"/><path d="M40 ${H - 22}q6-6 12 0t12 0t12 0"/></g>`;
+  const legend = regions.map((r, i) => `<g transform="translate(${360 - 14 - (regions.length - i) * 58},18)"><rect width="52" height="22" rx="11" fill="${REGION[r]}"/><text x="26" y="11.5" class="clg">${r}</text></g>`).join("");
+  return `<svg class="course" viewBox="0 0 360 ${H}" role="img" aria-label="${d.label} 코스">
+    <rect width="360" height="${H}" rx="0" fill="#fff8ec"/>${deco}${legend}
+    <path d="${path}" fill="none" stroke="#f1dfbd" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${path}" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="7 9" stroke-linecap="round"/>
+    ${nodes}</svg>`;
 }
 
 function dayView(d, di){
@@ -77,10 +115,9 @@ function dayView(d, di){
   const num = numbering(d);
   const tbd = d.items.filter(x => x.status === "tbd").length, ok = d.items.filter(x => x.status === "ok").length;
   const stops = Object.entries(num).map(([p, k]) => `<button class="stop" data-goto="${p}"><i>${k}</i>${esc(PTNAME[p])}</button>`).join("");
-  const mapSrc = `img/map_d${di}.jpg?v=${UPDATED}`;
-  return `<div class="mapbox"><a href="${mapSrc}" target="_blank" rel="noopener"><img src="${mapSrc}" alt="${d.label} 코스 지도"><span class="zoom">🔍 크게 보기</span></a>
+  return `<div class="mapbox">${courseMap(d)}
       <div class="mapcap"><div class="d">${d.label} · ${short(d)}${isToday ? ' · 오늘' : ''}</div><h2>${esc(d.title)}</h2>
-      <div class="m">방문 ${Object.keys(num).length}곳 · 아래 번호를 누르면 그 일정으로 이동해요</div></div></div>
+      <div class="m">방문 ${Object.keys(num).length}곳 · 그림을 누르면 그 일정으로 이동해요</div></div></div>
     <div class="stops">${stops}</div>
     <div class="sum">${tbd ? `<span class="chip t">미정 ${tbd}건</span>` : ''}${ok ? `<span class="chip o">확정 ${ok}건</span>` : ''}</div>
     ${d.warn ? `<div class="alert"><span>⚠️</span><span>${esc(d.warn)}</span></div>` : ""}
@@ -202,7 +239,7 @@ let view = "plan", day = Math.max(0, DAYS.findIndex(d => d.date === today));
 const q = qs.get("tab"); if (q){ if (/^d\d$/.test(q)) day = +q[1]; else view = q; }
 
 function render(){
-  const head = `<div class="top"><div class="brand"><div class="jp">大阪・京都・奈良</div><h1>오사카 3박 4일</h1></div><div class="hanko">二〇<br>二六</div></div>`;
+  const head = `<div class="top"><div class="brand"><div class="jp">大阪・京都・奈良</div><h1>${esc(TITLE)}</h1><div class="small">2026.11.15 ~ 11.18 · 3박 4일</div></div></div>`;
   let h;
   if (view === "plan") h = head + `<div class="daybar">${DAYS.map((d, i) => `<button data-day="${i}" class="${i === day ? "on" : ""} ${d.date === today ? "today" : ""}"><b>${d.label}</b><small>${short(d)}</small></button>`).join("")}</div>` + dayView(DAYS[day], day);
   else h = head + `<div class="wave" style="margin:6px 0 0"></div>` + ({meal: mealView, trans: transView, info: infoView})[view]();

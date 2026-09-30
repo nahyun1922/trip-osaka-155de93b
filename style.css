@@ -193,3 +193,14 @@ footer{text-align:center;margin-top:30px;color:var(--sub);font-size:12px}
 .fr .ds b{display:block;font-size:15px;color:var(--ink)}
 .fmsg{padding:10px 14px;font-size:13px;color:var(--sub);background:var(--paper)}
 .more{display:block;width:100%;border:0;background:var(--paper);color:var(--shu);font-weight:700;padding:12px;cursor:pointer;font-size:14px}
+
+/* 코스 그림 */
+.course{display:block;width:100%;height:auto;font-family:var(--sans)}
+.course .cn{cursor:pointer;animation:pop .5s both;animation-delay:var(--d)}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.course .ce{font-size:30px;text-anchor:middle;dominant-baseline:central}
+.course .cnum{font:700 13px var(--sans);fill:#fff;text-anchor:middle;dominant-baseline:central}
+.course .ctag{font:700 11px var(--sans);fill:#fff;text-anchor:middle;dominant-baseline:central}
+.course .cname{font:700 13.5px var(--sans);fill:#2a211b;text-anchor:middle}
+.course .ctime{font:500 11px var(--sans);fill:#8a7c6d;text-anchor:middle}
+.course .clg{font:700 11px var(--sans);fill:#5a4a3c;text-anchor:middle;dominant-baseline:central}
