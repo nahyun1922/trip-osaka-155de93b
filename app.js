@@ -1,0 +1,228 @@
+// 화면 그리기. 일정 내용은 data.js 에 있습니다.
+const {UPDATED, SOURCE_VERSION, LODGING, FLIGHTS, PT, PTNAME, DAYS, TRANSPORT, TODO, INFO, CREDITS, HAS_IMG, FOOD} = window.TRIP;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const clean = s => esc(String(s || "").replace(/\s*【확인 필요】/g, ""));
+const chk = s => /확인 필요/.test(s || "");
+const gmap = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q + " 오사카");
+const gplace = f => f.cid ? `https://www.google.com/maps?cid=${f.cid}` : `https://www.google.com/maps/search/?api=1&query=${f.p[0]},${f.p[1]}`;
+const IMG = k => `img/${k}.jpg`;
+const short = d => d.date.slice(5).replace("-", "/") + "(" + d.dow + ")";
+const hasInfo = k => k && INFO[k] && !INFO[k].missing;
+
+const qs = new URLSearchParams(location.search);
+const now = new Date();
+const today = qs.get("d") || now.toLocaleDateString("sv-SE");
+const nowMin = (() => { const t = qs.get("t") || now.toTimeString().slice(0, 5); const [h, m] = t.split(":").map(Number); return h * 60 + m; })();
+const toMin = s => { const [h, m] = s.split(":").map(Number); return h * 60 + m; };
+
+// ---------- 거리 ----------
+function meters(a, b){
+  const R = 6371000, r = x => x * Math.PI / 180;
+  const dl = r(b[0] - a[0]), dn = r(b[1] - a[1]);
+  const h = Math.sin(dl / 2) ** 2 + Math.cos(r(a[0])) * Math.cos(r(b[0])) * Math.sin(dn / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+const distTxt = m => m < 1000 ? `${Math.round(m / 10) * 10}m` : `${(m / 1000).toFixed(1)}km`;
+const walkTxt = m => m <= 2500 ? `걸어서 약 ${Math.max(1, Math.round(m * 1.3 / 75))}분` : "교통편 이용";   // 직선거리×1.3, 분당 75m
+const nearest = (p, n, maxM = Infinity) => FOOD.map(f => ({...f, dist: meters(p, f.p)})).filter(f => f.dist <= maxM).sort((a, b) => a.dist - b.dist).slice(0, n);
+
+// 하루 방문지 번호 (숙소는 따로, 같은 곳 다시 가면 같은 번호)
+function numbering(d){
+  const num = {}; let c = 0;
+  d.items.forEach(it => { if (it.pt && it.pt !== "hotel" && !(it.pt in num)) num[it.pt] = ++c; });
+  return num;
+}
+
+// ---------- 일정 ----------
+function nearRow(it){
+  const p = it.pt ? PT[it.pt] : null; if (!p) return "";
+  const list = nearest(p, 4, 1000); if (!list.length) return "";
+  return `<div class="near"><div class="k">🍴 근처 저장한 맛집</div><div class="l">${list.map(f =>
+    `<a class="nf" href="${gplace(f)}" target="_blank" rel="noopener"><b>${esc(f.n)}</b><span>${distTxt(f.dist)} · ${walkTxt(f.dist)}</span></a>`).join("")}</div></div>`;
+}
+
+function entry(it, cls, num){
+  const n = it.pt === "hotel" ? '<div class="dot h">🏠</div>' : (it.pt && num[it.pt] ? `<div class="dot n">${num[it.pt]}</div>` : '<div class="dot"></div>');
+  const tag = cls === "now" ? '<span class="nowtag">지금</span>' : '';
+  const pt = it.pt ? ` data-pt="${it.pt}"` : "";
+  let body, type;
+  if (it.img && it.kind !== "move"){
+    type = "big";
+    const pills = `${it.status === "tbd" ? '<span class="pill t">미정</span>' : ''}${it.status === "ok" ? '<span class="pill o">확정</span>' : ''}${chk(it.n) ? '<span class="pill c">확인 필요</span>' : ''}`;
+    const story = hasInfo(it.info) ? `<button class="b-story" data-info="${it.info}">📖 이야기 읽기</button>` : "";
+    const story2 = hasInfo(it.info2) ? `<button class="b-story" data-info="${it.info2}">📖 ${esc(INFO[it.info2].name)}</button>` : "";
+    const mp = it.map ? `<a class="b-map" href="${gmap(it.map)}" target="_blank" rel="noopener">📍 길찾기</a>` : "";
+    body = `<div class="cardx"><div class="ph"${hasInfo(it.info) ? ` data-info="${it.info}"` : ""}><img src="${IMG(it.img)}" alt="" loading="lazy" style="object-position:${it.pos || "50% 50%"}">
+      <div class="pl">${pills}</div>${it.eg ? `<span class="eg">${esc(it.eg)}</span>` : ""}</div>
+      <div class="tx">${it.loc ? `<div class="loc">${esc(it.loc)}</div>` : ""}<div class="h">${it.meal ? "🍴 " : ""}${esc(it.b)}</div>
+      ${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}
+      ${story || story2 || mp ? `<div class="acts">${story}${story2}${mp}</div>` : ""}
+      ${nearRow(it)}</div></div>`;
+  } else {
+    type = it.kind === "move" ? "mv" : "cp";
+    const chips = (it.status === "tbd" ? ' <span class="chip t">미정</span>' : '') + (chk(it.n) ? ' <span class="chip t">확인 필요</span>' : '');
+    body = `<div class="row">${it.img ? `<img src="${IMG(it.img)}" alt="" loading="lazy">` : `<div class="ico">${it.ic || "•"}</div>`}
+      <div><div class="h">${esc(it.b)}${chips}</div>${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}</div>
+      ${it.map ? `<a class="mini" href="${gmap(it.map)}" target="_blank" rel="noopener">지도</a>` : ""}</div>`;
+  }
+  return `<div class="entry ${type} ${cls}"${pt}>${n}<div class="tm">${esc(it.t)}${tag}</div>${body}</div>`;
+}
+
+function dayView(d, di){
+  const isToday = d.date === today;
+  let cur = -1;
+  if (isToday) d.items.forEach((it, i) => { if (it.at && toMin(it.at) <= nowMin) cur = i; });
+  const num = numbering(d);
+  const tbd = d.items.filter(x => x.status === "tbd").length, ok = d.items.filter(x => x.status === "ok").length;
+  const stops = Object.entries(num).map(([p, k]) => `<button class="stop" data-goto="${p}"><i>${k}</i>${esc(PTNAME[p])}</button>`).join("");
+  const mapSrc = `img/map_d${di}.jpg?v=${UPDATED}`;
+  return `<div class="mapbox"><a href="${mapSrc}" target="_blank" rel="noopener"><img src="${mapSrc}" alt="${d.label} 코스 지도"><span class="zoom">🔍 크게 보기</span></a>
+      <div class="mapcap"><div class="d">${d.label} · ${short(d)}${isToday ? ' · 오늘' : ''}</div><h2>${esc(d.title)}</h2>
+      <div class="m">방문 ${Object.keys(num).length}곳 · 아래 번호를 누르면 그 일정으로 이동해요</div></div></div>
+    <div class="stops">${stops}</div>
+    <div class="sum">${tbd ? `<span class="chip t">미정 ${tbd}건</span>` : ''}${ok ? `<span class="chip o">확정 ${ok}건</span>` : ''}</div>
+    ${d.warn ? `<div class="alert"><span>⚠️</span><span>${esc(d.warn)}</span></div>` : ""}
+    <div class="sectitle">하루 일정 <span class="jp">${d.kanji}日目</span></div>
+    <div class="rail">${d.items.map((it, i) => { let c = ""; if (isToday && cur >= 0){ if (i < cur) c = "past"; if (i === cur) c = "now"; } return entry(it, c, num); }).join("")}</div>`;
+}
+
+// ---------- 이야기 창 ----------
+function openInfo(k){
+  const x = INFO[k]; if (!x || x.missing) return;
+  const img = HAS_IMG.includes(k);
+  $("#sheetin").innerHTML = `<div class="sh-ph ${img ? "" : "none wave"}" ${img ? `style="background-image:url(${IMG(k)})"` : ""}><div class="grab"></div><button class="x" data-close>✕</button></div>
+    <div class="sh-bd">
+      <div class="jp">${esc(x.local)}</div><h2>${esc(x.name)}</h2>
+      ${x.lead ? `<p class="lead">${esc(x.lead)}</p>` : ""}
+      ${x.facts && x.facts.length ? `<div class="facts">${x.facts.map(f => `<div class="fact"><div class="k">${esc(f[0])}</div><div class="v">${esc(f[1])}</div></div>`).join("")}</div>` : ""}
+      ${x.story && x.story.length ? `<h3>이야기</h3><div class="story">${x.story.map(p => `<p>${esc(p)}</p>`).join("")}</div>` : ""}
+      ${x.look && x.look.length ? `<h3>놓치지 말 것</h3><ul class="look">${x.look.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
+      ${x.tips && x.tips.length ? `<h3>알아두면 좋아요</h3>${x.tips.map(p => `<div class="tip">${esc(p)}</div>`).join("")}` : ""}
+      <div class="wave" style="margin-top:26px"></div>
+      <div class="srcs">출처 · ${(x.src || []).map(s => `<a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a>`).join(" · ")}</div>
+    </div>`;
+  $("#sheetin").scrollTop = 0;
+  $("#veil").classList.add("on"); $("#sheet").classList.add("on"); document.body.style.overflow = "hidden";
+  history.pushState({sheet: 1}, "");
+}
+function closeInfo(fromPop){
+  if (!$("#sheet").classList.contains("on")) return;
+  $("#veil").classList.remove("on"); $("#sheet").classList.remove("on"); document.body.style.overflow = "";
+  if (!fromPop) history.back();
+}
+addEventListener("popstate", () => closeInfo(true));
+addEventListener("keydown", e => { if (e.key === "Escape") closeInfo(); });
+(() => { let y0 = null; const s = $("#sheet");   // 아래로 끌어내려 닫기
+  s.addEventListener("touchstart", e => { y0 = $("#sheetin").scrollTop <= 0 ? e.touches[0].clientY : null; }, {passive: true});
+  s.addEventListener("touchmove", e => { if (y0 === null) return; const dy = e.touches[0].clientY - y0; if (dy > 0) s.style.transform = `translateY(${dy}px)`; }, {passive: true});
+  s.addEventListener("touchend", e => { if (y0 === null) return; const dy = e.changedTouches[0].clientY - y0; s.style.transform = ""; if (dy > 120) closeInfo(); y0 = null; });
+})();
+
+// ---------- 먹거리 ----------
+// 기준: 내 위치 / 숙소 / 그날 방문지
+let base = "hotel", myPos = null, showN = 8, geoMsg = "";
+function bases(){
+  const d = DAYS[day], seen = new Set(["hotel"]), out = [];
+  d.items.forEach(it => { if (it.pt && !seen.has(it.pt) && !["kix"].includes(it.pt)){ seen.add(it.pt); out.push(it.pt); } });
+  return out;
+}
+function finder(){
+  const p = base === "me" ? myPos : PT[base];
+  const list = p ? nearest(p, showN) : [];
+  const total = FOOD.length;
+  return `<div class="finder">
+    <div class="bases">
+      <button class="base me ${base === "me" ? "on" : ""}" data-base="me">📍 내 위치</button>
+      <button class="base ${base === "hotel" ? "on" : ""}" data-base="hotel">🏠 숙소</button>
+      ${bases().map(k => `<button class="base ${base === k ? "on" : ""}" data-base="${k}">${esc(PTNAME[k])}</button>`).join("")}
+    </div>
+    ${geoMsg ? `<div class="fmsg">${esc(geoMsg)}</div>` : ""}
+    ${p ? list.map((f, i) => `<a class="fr" href="${gplace(f)}" target="_blank" rel="noopener"><div class="no">${i + 1}</div>
+        <div><div class="nm">${esc(f.n)}</div><div class="mm">${f.m ? esc(f.m) + " · " : ""}구글 지도에서 열기 ›</div></div>
+        <div class="ds"><b>${distTxt(f.dist)}</b>${walkTxt(f.dist)}</div></a>`).join("") : ""}
+    ${p && showN < total ? `<button class="more" data-more>더 보기 (${total}곳 중 ${Math.min(showN, total)}곳)</button>` : ""}
+    <div class="fmsg">수령님 구글 지도 「맛집」 목록의 간사이 지역 ${total}곳 · 거리는 직선거리 기준이라 실제 걷는 시간은 조금 더 걸릴 수 있어요</div>
+  </div>`;
+}
+function locate(){
+  if (!navigator.geolocation){ geoMsg = "이 폰에서는 위치 기능을 쓸 수 없어요."; render(); return; }
+  geoMsg = "현재 위치를 찾는 중…"; base = "me"; render();
+  navigator.geolocation.getCurrentPosition(
+    p => { myPos = [p.coords.latitude, p.coords.longitude]; geoMsg = ""; const f = nearest(myPos, 1)[0];
+           if (f && f.dist > 30000) geoMsg = "지금 위치에서 30km 안에 저장한 맛집이 없어요. 여행지에 도착하면 다시 눌러 보세요."; render(); },
+    e => { geoMsg = e.code === 1 ? "위치 권한이 꺼져 있어요. 폰 설정에서 브라우저 위치 권한을 허용해 주세요." : "위치를 찾지 못했어요. 잠시 뒤 다시 눌러 보세요."; base = "hotel"; render(); },
+    {enableHighAccuracy: true, timeout: 12000, maximumAge: 60000});
+}
+
+function mealView(){
+  const d = DAYS[day];
+  return `<div class="sectitle">가까운 맛집 <span class="jp">近所</span></div>
+    <div class="small" style="margin:-4px 18px 10px">기준을 고르면 가까운 순으로 보여 줘요. 누르면 구글 지도가 열려요. (방문지 칸은 ${d.label} 기준 · 일정 탭에서 날짜를 바꾸면 따라 바뀜)</div>
+    ${finder()}
+    <div class="sectitle">끼니 계획 <span class="jp">食</span></div>
+    <div class="small" style="margin:-4px 18px 6px">사진은 대부분 <b>음식 종류 예시</b>예요. 식당이 정해지면 바꿀게요.</div>` +
+    DAYS.map(d => `<div class="sectitle" style="font-size:16px;margin-top:20px">${d.label} · ${short(d)}</div>
+      <div class="grid">${d.items.filter(x => x.meal).map(it => `<div class="g">
+        ${it.img ? `<div class="ph"${hasInfo(it.info) ? ` data-info="${it.info}"` : ""}><img src="${IMG(it.img)}" alt="" loading="lazy"><div class="pl">${it.status === "tbd" ? '<span class="pill t">미정</span>' : ''}${it.status === "ok" ? '<span class="pill o">확정</span>' : ''}</div>${it.eg ? `<span class="eg">${esc(it.eg)}</span>` : ""}</div>`
+          : `<div class="ph noimg">${it.ic || "🍽️"}<div class="pl">${it.status === "tbd" ? '<span class="pill t">미정</span>' : ''}</div></div>`}
+        <div class="tx"><div class="k">${esc(it.meal)} · ${esc(it.t)}</div><div class="h">${esc(it.b)}</div>
+        ${it.n ? `<div class="n" style="font-size:13px">${clean(it.n)}</div>` : ""}</div></div>`).join("")}</div>`).join("");
+}
+
+// ---------- 교통 / 정보 ----------
+function transView(){
+  const leg = (k, a) => `<div class="leg"><div><div class="k">${k} · ${esc(a[1])}</div><div class="big">${a[0]}</div></div>
+      <div class="mid">${esc(a[4])}</div><div style="text-align:right"><div class="k">${esc(a[3])}</div><div class="big">${a[2]}</div></div></div>`;
+  return `<div class="sectitle">항공편 <span class="jp">航空</span></div>` +
+    FLIGHTS.map(f => `<div class="pass"><div class="hd"><span>${f.who}</span><span>${f.n}</span></div>${leg("가는편 11/15", f.out)}${leg("오는편 11/18", f.back)}</div>`).join("") +
+    `<div class="sectitle">이동 한눈에 <span class="jp">交通</span></div>` +
+    TRANSPORT.map(r => `<div class="tcard"><div class="ico">${r[0]}</div><div><div class="h">${esc(r[1])}</div><div class="n">${esc(r[2])}</div></div></div>`).join("");
+}
+function infoView(){
+  return `<div class="sectitle">숙소 <span class="jp">宿</span></div>
+    <div class="box"><div class="small">${esc(LODGING.name)}</div><div style="font-family:var(--serif);font-size:20px;font-weight:700">${esc(LODGING.addr)}</div>
+      <div style="margin-top:8px;padding:10px 12px;background:var(--paper);border-radius:12px;font-family:var(--mincho);font-size:17px">${esc(LODGING.jp)}</div>
+      <div class="small" style="margin-top:4px">택시 기사님께 위 일본어 주소를 보여 주세요</div>
+      <div style="color:var(--sub);font-size:14px;margin-top:8px">${esc(LODGING.note)}</div>
+      <a class="btn" href="https://www.google.com/maps/search/?api=1&query=${PT.hotel[0]},${PT.hotel[1]}" target="_blank" rel="noopener">📍 숙소 지도 열기</a></div>
+    <div class="sectitle">장소 이야기 모음 <span class="jp">物語</span></div>
+    <div class="box" style="display:flex;flex-wrap:wrap;gap:8px">${Object.keys(INFO).filter(hasInfo).map(k => `<button class="stop" data-info="${k}" style="padding:5px 12px">${esc(INFO[k].name)}</button>`).join("")}</div>
+    <div class="sectitle">아직 정할 것 <span class="jp">未定</span></div><div class="box"><ul>${TODO.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
+    <div class="sectitle">이 화면 <span class="jp">記</span></div>
+    <div class="box"><div>마지막 수정 <b>${UPDATED}</b></div><div class="small">${esc(SOURCE_VERSION)}</div>
+      <div class="small" style="margin-top:10px">사진·장소 이야기: 위키백과·위키미디어 공용. 코스 지도: © OpenStreetMap 기여자.</div>
+      <div class="small" style="margin-top:4px;line-height:1.9">${CREDITS.map(c => `<a href="${c[1]}" target="_blank" rel="noopener">${esc(c[0])}</a>`).join(" · ")}</div></div>`;
+}
+
+// ---------- 화면 ----------
+const NAV = [["plan", "🗓️", "일정"], ["meal", "🍜", "먹거리"], ["trans", "🚆", "교통"], ["info", "📖", "정보"]];
+let view = "plan", day = Math.max(0, DAYS.findIndex(d => d.date === today));
+const q = qs.get("tab"); if (q){ if (/^d\d$/.test(q)) day = +q[1]; else view = q; }
+
+function render(){
+  const head = `<div class="top"><div class="brand"><div class="jp">大阪・京都・奈良</div><h1>오사카 3박 4일</h1></div><div class="hanko">二〇<br>二六</div></div>`;
+  let h;
+  if (view === "plan") h = head + `<div class="daybar">${DAYS.map((d, i) => `<button data-day="${i}" class="${i === day ? "on" : ""} ${d.date === today ? "today" : ""}"><b>${d.label}</b><small>${short(d)}</small></button>`).join("")}</div>` + dayView(DAYS[day], day);
+  else h = head + `<div class="wave" style="margin:6px 0 0"></div>` + ({meal: mealView, trans: transView, info: infoView})[view]();
+  $("#app").innerHTML = h + `<footer>마지막 수정 ${UPDATED}<div class="wave" style="margin-top:14px"></div></footer>`;
+  $("#bot").innerHTML = NAV.map(n => `<button data-view="${n[0]}" class="${n[0] === view ? "on" : ""}"><span>${n[1]}</span>${n[2]}</button>`).join("");
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }), {rootMargin: "0px 0px -40px"});
+  document.querySelectorAll(".entry").forEach(el => io.observe(el));
+  const n = document.querySelector(".entry.now"); if (n && !qs.get("noscroll")) setTimeout(() => n.scrollIntoView({block: "center"}), 300);
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-info],[data-day],[data-view],[data-goto],[data-close],[data-base],[data-more]"); if (!t) return;
+  if (t.dataset.info) return openInfo(t.dataset.info);
+  if (t.dataset.close !== undefined) return closeInfo();
+  if (t.dataset.day){ day = +t.dataset.day; render(); scrollTo(0, 0); }
+  if (t.dataset.view){ view = t.dataset.view; showN = 8; render(); scrollTo(0, 0); }
+  if (t.dataset.base){ showN = 8; if (t.dataset.base === "me") return locate(); base = t.dataset.base; geoMsg = ""; render(); }
+  if (t.dataset.more !== undefined){ showN += 10; render(); }
+  if (t.dataset.goto){ const el = document.querySelector(`.entry[data-pt="${t.dataset.goto}"]`); if (el){ el.classList.add("in"); el.scrollIntoView({behavior: "smooth", block: "center"}); } }
+});
+$("#veil").addEventListener("click", () => closeInfo());
+render();
+if (qs.get("info")) openInfo(qs.get("info"));
+try { navigator.serviceWorker && navigator.serviceWorker.register("sw.js"); } catch (e){}
