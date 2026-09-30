@@ -222,6 +222,13 @@ footer{text-align:center;margin-top:30px;color:var(--sub);font-size:12px}
 .snack.empty{background:transparent;border-style:dashed;color:var(--sub)}
 @media (prefers-color-scheme:dark){.snack{background:#2c211c;border-color:#4a342a}}
 
+/* 쇼핑 리스트 */
+.shopcard .ph{aspect-ratio:4/5}
+.shoplist{display:grid;gap:8px;margin-top:10px}
+.shopitem{padding:9px 12px;background:var(--paper);border-radius:12px}
+.shopitem b{font-size:14px;display:block}
+.shopitem .n{font-size:13px;color:var(--sub);margin-top:2px;line-height:1.5}
+
 /* 끼니 계획: 점심·저녁 한 줄 */
 .mlist.two{grid-template-columns:1fr 1fr;gap:10px}
 .mlist.two .mcard:only-child{grid-column:1/-1}

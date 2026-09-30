@@ -1,5 +1,5 @@
 // 화면 그리기. 일정 내용은 data.js 에 있습니다.
-const {TITLE, UPDATED, SOURCE_VERSION, LODGING, FLIGHTS, PT, PTNAME, PTICON, DAYS, TRANSPORT, TODO, INFO, CREDITS, HAS_IMG, FOOD} = window.TRIP;
+const {TITLE, UPDATED, SOURCE_VERSION, LODGING, FLIGHTS, PT, PTNAME, PTICON, DAYS, TRANSPORT, TODO, INFO, CREDITS, HAS_IMG, FOOD, SHOPLIST} = window.TRIP;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -221,6 +221,21 @@ function mealView(){
     ${finder()}`;
 }
 
+// ---------- 쇼핑 ----------
+function shopCard(post){
+  return `<div class="mcard shopcard">
+    <div class="ph"><img src="${IMG(post.img)}" alt="" loading="lazy"></div>
+    <div class="tx"><div class="h">${esc(post.title)}</div>
+    <div class="shoplist">${post.items.map(p => `<div class="shopitem"><b>${esc(p.n)}</b><div class="n">${clean(p.d)}</div></div>`).join("")}</div>
+    ${post.note ? `<div class="small" style="margin-top:8px">${clean(post.note)}</div>` : ""}</div></div>`;
+}
+function shopView(){
+  return `<div class="sectitle">쇼핑 리스트 <span class="jp">買物</span></div>
+    <div class="small" style="margin:-4px 18px 10px">SNS에서 모은 쇼핑템을 매장별로 정리했어요. 실제로 사보고 후기 쓴 게시물 기준.</div>` +
+    SHOPLIST.map(cat => `<div class="sectitle" style="font-size:16px;margin-top:22px">${cat.ic} ${esc(cat.cat)}</div>
+      <div class="mlist">${cat.posts.map(shopCard).join("")}</div>`).join("");
+}
+
 // ---------- 교통 / 정보 ----------
 function transView(){
   const leg = (k, a) => `<div class="leg"><div><div class="k">${k} · ${esc(a[1])}</div><div class="big">${a[0]}</div></div>
@@ -245,7 +260,7 @@ function infoView(){
 }
 
 // ---------- 화면 ----------
-const NAV = [["plan", "🗓️", "일정"], ["meal", "🍜", "먹거리"], ["trans", "🚆", "교통"], ["info", "📖", "정보"]];
+const NAV = [["plan", "🗓️", "일정"], ["meal", "🍜", "먹거리"], ["shop", "🛍️", "쇼핑"], ["trans", "🚆", "교통"], ["info", "📖", "정보"]];
 let view = "plan", day = Math.max(0, DAYS.findIndex(d => d.date === today));
 const q = qs.get("tab"); if (q){ if (/^d\d$/.test(q)) day = +q[1]; else view = q; }
 
@@ -253,7 +268,7 @@ function render(){
   const head = `<div class="top"><div class="brand"><div class="jp">大阪・京都・奈良</div><h1>${esc(TITLE)}</h1><div class="small">2026.11.15 ~ 11.18 · 3박 4일</div></div></div>`;
   let h;
   if (view === "plan") h = head + `<div class="daybar">${DAYS.map((d, i) => `<button data-day="${i}" class="${i === day ? "on" : ""} ${d.date === today ? "today" : ""}"><b>${d.label}</b><small>${short(d)}</small></button>`).join("")}</div>` + dayView(DAYS[day], day);
-  else h = head + `<div class="wave" style="margin:6px 0 0"></div>` + ({meal: mealView, trans: transView, info: infoView})[view]();
+  else h = head + `<div class="wave" style="margin:6px 0 0"></div>` + ({meal: mealView, shop: shopView, trans: transView, info: infoView})[view]();
   $("#app").innerHTML = h + `<footer>마지막 수정 ${UPDATED}<div class="wave" style="margin-top:14px"></div></footer>`;
   $("#bot").innerHTML = NAV.map(n => `<button data-view="${n[0]}" class="${n[0] === view ? "on" : ""}"><span>${n[1]}</span>${n[2]}</button>`).join("");
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }), {rootMargin: "0px 0px -40px"});
