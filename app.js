@@ -139,8 +139,8 @@ function infoBlock(k, first){
   return `${top}<div class="sh-bd${first ? "" : " sh-2"}">
       <div class="jp">${esc(x.local)}</div><h2>${esc(x.name)}</h2>
       ${x.lead ? `<p class="lead">${esc(x.lead)}</p>` : ""}
-      ${x.facts && x.facts.length ? `<div class="facts">${x.facts.map(f => `<div class="fact"><div class="k">${esc(f[0])}</div><div class="v">${esc(f[1])}</div></div>`).join("")}</div>` : ""}
       ${x.menu ? `<h3>${esc(x.menu.title)}</h3><div class="menu">${x.menu.items.map(m => `<div class="mi"><div><b>${esc(m[0])}</b><span>${esc(m[1])}</span></div><em>${esc(m[2])}</em></div>`).join("")}</div>${x.menu.note ? `<div class="tip">${esc(x.menu.note)}</div>` : ""}` : ""}
+      ${x.facts && x.facts.length ? `<div class="facts">${x.facts.map(f => `<div class="fact"><div class="k">${esc(f[0])}</div><div class="v">${esc(f[1])}</div></div>`).join("")}</div>` : ""}
       ${x.story && x.story.length ? `<h3>${x.menu ? "음식 이야기" : "이야기"}</h3><div class="story">${x.story.map(p => `<p>${esc(p)}</p>`).join("")}</div>` : ""}
       ${x.look && x.look.length ? `<h3>놓치지 말 것</h3><ul class="look">${x.look.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
       ${x.tabelog ? `<h3>타베로그 리뷰</h3><div class="tbl"><div class="tbs"><b>${esc(x.tabelog.score)}</b><span>타베로그 점수 · 리뷰 ${esc(x.tabelog.reviews)}건${x.tabelog.asof ? ` · ${esc(x.tabelog.asof)} 기준` : ""}</span></div>
