@@ -1,5 +1,5 @@
 window.TRIP = {
- "UPDATED": "2026-10-01",
+ "UPDATED": "2026-10-02",
  "SOURCE_VERSION": "코스초안 2026-09-19판 기준",
  "LODGING": {
   "name": "숙소 room507",
