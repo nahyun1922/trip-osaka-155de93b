@@ -71,7 +71,7 @@ function entry(it, cls, num){
     const chips = (it.status === "tbd" ? ' <span class="chip t">미정</span>' : '') + (chk(it.n) ? ' <span class="chip t">확인 필요</span>' : '');
     body = `<div class="row">${it.img ? `<img src="${IMG(it.img)}" alt="" loading="lazy">` : `<div class="ico">${it.ic || "•"}</div>`}
       <div><div class="h">${esc(it.b)}${chips}</div>${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}</div>
-      ${it.map ? `<a class="mini" href="${it.from && it.to ? gdir(it.from, it.to, it.mode) : gmap(it.map)}" target="_blank" rel="noopener">${it.from && it.to ? "🧭 길찾기" : "지도"}</a>` : ""}</div>${it.meal ? nearRow(it) : ""}`;
+      ${hasInfo(it.info) ? `<button class="mini" data-info="${it.info}">📖 이야기</button>` : ""}${it.map ? `<a class="mini" href="${it.from && it.to ? gdir(it.from, it.to, it.mode) : gmap(it.map)}" target="_blank" rel="noopener">${it.from && it.to ? "🧭 길찾기" : "지도"}</a>` : ""}</div>${it.meal ? nearRow(it) : ""}`;
   }
   return `<div class="entry ${type} ${cls}"${pt}>${n}<div class="tm">${esc(it.t)}${tag}</div>${body}</div>`;
 }
@@ -131,10 +131,10 @@ function dayView(d, di){
 
 // ---------- 이야기 창 ----------
 function infoBlock(k, first){
-  const x = INFO[k], img = HAS_IMG.includes(k);
+  const x = INFO[k], img = HAS_IMG.includes(k) || !!x.img, IMGK = x.img || k;   // x.img: 이야기 사진을 다른 파일로 쓸 때
   const top = first
-    ? `<div class="sh-ph ${img ? "" : "none wave"}" ${img ? `style="background-image:url(${IMG(k)})"` : ""}><div class="grab"></div><button class="x" data-close>✕</button></div>`
-    : `<div class="sh-next">${img ? `<img src="${IMG(k)}" alt="" loading="lazy">` : ""}</div>`;
+    ? `<div class="sh-ph ${img ? "" : "none wave"}" ${img ? `style="background-image:url(${IMG(IMGK)})"` : ""}><div class="grab"></div><button class="x" data-close>✕</button></div>`
+    : `<div class="sh-next">${img ? `<img src="${IMG(IMGK)}" alt="" loading="lazy">` : ""}</div>`;
   return `${top}<div class="sh-bd${first ? "" : " sh-2"}">
       <div class="jp">${esc(x.local)}</div><h2>${esc(x.name)}</h2>
       ${x.lead ? `<p class="lead">${esc(x.lead)}</p>` : ""}
@@ -207,7 +207,7 @@ function mealCard(it){
   return `<div class="mcard">
     ${it.img ? `<div class="ph"${hasInfo(it.info) ? ` data-info="${it.info}"` : ""}><img src="${IMG(it.img)}" alt="" loading="lazy"><div class="pl">${pills}</div>${it.eg ? `<span class="eg">${esc(it.eg)}</span>` : ""}</div>` : ""}
     <div class="tx"><div class="k">${esc(it.meal)} · ${esc(it.t)}</div><div class="h">${esc(it.b)}</div>
-    ${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}${it.img ? "" : `<div style="margin-top:6px">${pills}</div>`}${nearRow(it)}</div></div>`;
+    ${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}${it.img ? "" : `<div style="margin-top:6px">${pills}${hasInfo(it.info) ? ` <button class="b-story" data-info="${it.info}" style="margin-left:6px">📖 이야기 읽기</button>` : ""}</div>`}${nearRow(it)}</div></div>`;
 }
 function mealView(){
   const d = DAYS[day];
