@@ -80,7 +80,7 @@ function entry(it, cls, num){
 const REGION = {"오사카": "#ffd6cf", "교토": "#ffe2b3", "나라": "#d4ebcb", "공항": "#d3e3f6"};
 function courseMap(d){
   const seq = [];
-  d.items.forEach(it => { if (inRoute(it) && (!seq.length || seq[seq.length - 1].p !== it.pt)) seq.push({p: it.pt, t: ((it.t || "").match(/\d{1,2}:\d{2}/) || [""])[0]}); });
+  d.items.forEach(it => { if (inRoute(it) && (!seq.length || seq[seq.length - 1].p !== it.pt)) seq.push({p: it.pt, t: ((it.t || "").match(/\d{1,2}:\d{2}/) || [""])[0], m: it.meal}); });
   const num = numbering(d), X = [62, 180, 298], RH = 136, TOP = 92;
   const pos = seq.map((_, i) => { const r = Math.floor(i / 3), c = i % 3; return [X[r % 2 ? 2 - c : c], TOP + r * RH]; });
   const H = TOP + (Math.ceil(seq.length / 3) - 1) * RH + 104;
@@ -92,7 +92,8 @@ function courseMap(d){
   }
   const regions = [...new Set(seq.map(s => (PTICON[s.p] || [])[2]).filter(Boolean))];
   const nodes = seq.map((s, i) => {
-    const [x, y] = pos[i], [ic, nm, rg] = PTICON[s.p] || ["📍", PTNAME[s.p], "오사카"], n = num[s.p];
+    const [x, y] = pos[i], [ic, pn, rg] = PTICON[s.p] || ["📍", PTNAME[s.p], "오사카"], n = num[s.p];
+    const nm = s.m && s.m !== "조식" ? s.m : pn;   // 식당은 가게 이름 대신 점심·저녁·간식으로
     const tag = i === 0 ? "출발" : i === seq.length - 1 ? "도착" : "";
     return `<g class="cn" data-goto="${s.p}" style="--d:${i * 70}ms">
       <circle cx="${x}" cy="${y + 3}" r="33" fill="rgba(90,60,30,.13)"/>
