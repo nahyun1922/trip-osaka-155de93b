@@ -6,7 +6,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;
 const clean = s => esc(String(s || "").replace(/\s*【확인 필요】/g, ""));
 const chk = s => /확인 필요/.test(s || "");
 const gmap = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q + " 오사카");
-const gdir = (from, to) => "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(from) + "&destination=" + encodeURIComponent(to) + "&travelmode=transit";
+const gdir = (from, to, mode) => "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(from) + "&destination=" + encodeURIComponent(to) + "&travelmode=" + (mode || "transit");
 const gplace = f => f.cid ? `https://www.google.com/maps?cid=${f.cid}` : `https://www.google.com/maps/search/?api=1&query=${f.p[0]},${f.p[1]}`;
 const IMG = k => `img/${k}.jpg`;
 const short = d => d.date.slice(5).replace("-", "/") + "(" + d.dow + ")";
@@ -42,7 +42,8 @@ function numbering(d){
 // ---------- 일정 ----------
 function nearRow(it){
   const k = it.near || it.pt, p = k ? PT[k] : null; if (!p) return "";
-  const list = it.meal ? nearest(p, 8, 1500) : nearest(p, 4, 1000); if (!list.length) return "";
+  const self = it.meal && !it.near && k !== "hotel";   // 식당 자체가 정해진 칸이면 자기 가게(0m)는 빼고 보여 줌
+  const list = (it.meal ? nearest(p, 9, 1500) : nearest(p, 4, 1000)).filter(f => !(self && f.dist < 30)).slice(0, it.meal ? 8 : 4); if (!list.length) return "";
   return `<div class="near"><div class="k">🍴 근처 맛집${it.meal ? ` · ${k === "hotel" ? "숙소" : esc(PTNAME[k])} 기준 가까운 순` : ""}</div><div class="l">${list.map(f =>
     `<a class="nf" href="${gplace(f)}" target="_blank" rel="noopener"><b>${esc(f.n)}</b><span>${distTxt(f.dist)} · ${walkTxt(f.dist)}</span></a>`).join("")}</div></div>`;
 }
@@ -70,7 +71,7 @@ function entry(it, cls, num){
     const chips = (it.status === "tbd" ? ' <span class="chip t">미정</span>' : '') + (chk(it.n) ? ' <span class="chip t">확인 필요</span>' : '');
     body = `<div class="row">${it.img ? `<img src="${IMG(it.img)}" alt="" loading="lazy">` : `<div class="ico">${it.ic || "•"}</div>`}
       <div><div class="h">${esc(it.b)}${chips}</div>${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}</div>
-      ${it.map ? `<a class="mini" href="${it.from && it.to ? gdir(it.from, it.to) : gmap(it.map)}" target="_blank" rel="noopener">${it.from && it.to ? "🧭 길찾기" : "지도"}</a>` : ""}</div>${it.meal ? nearRow(it) : ""}`;
+      ${it.map ? `<a class="mini" href="${it.from && it.to ? gdir(it.from, it.to, it.mode) : gmap(it.map)}" target="_blank" rel="noopener">${it.from && it.to ? "🧭 길찾기" : "지도"}</a>` : ""}</div>${it.meal ? nearRow(it) : ""}`;
   }
   return `<div class="entry ${type} ${cls}"${pt}>${n}<div class="tm">${esc(it.t)}${tag}</div>${body}</div>`;
 }
