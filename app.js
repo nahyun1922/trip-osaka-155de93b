@@ -236,10 +236,27 @@ function shopTile(p, i){
     <div class="ph">${p.img ? `<img src="${IMG(p.img)}" alt="" loading="lazy">` : `<div class="noimg">${p.ic || "🛍️"}</div>`}</div>
     <div class="tx"><b>${esc(p.n)}</b><div class="n">${clean(p.d)}</div></div></div>`;
 }
+const STORE_KINDS = ["돈키호테", "칼디", "마트", "약국·드럭스토어", "스탠다드프로덕트", "아카짱혼포"];
+function findStore(name){
+  const win = window.open("", "_blank");
+  const url = p => `https://www.google.com/maps/search/${encodeURIComponent(name)}/@${p[0]},${p[1]},15z`;
+  const fallback = `https://www.google.com/maps/search/${encodeURIComponent(name + " 근처")}`;
+  if (!win) return;
+  if (!navigator.geolocation){ win.location = fallback; return; }
+  win.document.write("위치 확인 중…");
+  navigator.geolocation.getCurrentPosition(
+    p => { win.location = url([p.coords.latitude, p.coords.longitude]); },
+    () => { win.location = fallback; },
+    {timeout: 8000}
+  );
+}
 function shopView(){
   let i = -1;
   return `<div class="sectitle">쇼핑 리스트 <span class="jp">買物</span></div>
-    <div class="small" style="margin:-4px 18px 10px">SNS에서 모은 쇼핑템을 매장별로 정리했어요. 눌러보면 가격·추천 이유를 볼 수 있어요.</div>` +
+    <div class="small" style="margin:-4px 18px 10px">SNS에서 모은 쇼핑템을 매장별로 정리했어요. 눌러보면 가격·추천 이유를 볼 수 있어요.</div>
+    <div class="sectitle" style="font-size:16px">📍 근처 매장 찾기 <span class="jp">店探し</span></div>
+    <div class="small" style="margin:-4px 18px 8px">지금 내 위치에서 가까운 매장을 구글 지도로 열어요.</div>
+    <div class="box" style="display:flex;flex-wrap:wrap;gap:8px">${STORE_KINDS.map(k => `<button class="stop" data-store="${esc(k)}" style="padding:5px 12px">${esc(k)}</button>`).join("")}</div>` +
     SHOPLIST.map(cat => `<div class="sectitle" style="font-size:16px;margin-top:22px">${cat.ic} ${esc(cat.cat)}</div>
       ${cat.note ? `<div class="small" style="margin:-4px 18px 8px">${clean(cat.note)}</div>` : ""}
       <div class="sgrid">${cat.items.map(p => shopTile(p, ++i)).join("")}</div>`).join("");
@@ -300,9 +317,10 @@ function render(){
   const n = document.querySelector(".entry.now"); if (n && !qs.get("noscroll")) setTimeout(() => n.scrollIntoView({block: "center"}), 300);
 }
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-info],[data-shop],[data-day],[data-view],[data-goto],[data-close],[data-base],[data-more]"); if (!t) return;
+  const t = e.target.closest("[data-info],[data-shop],[data-store],[data-day],[data-view],[data-goto],[data-close],[data-base],[data-more]"); if (!t) return;
   if (t.dataset.info) return openInfo(t.dataset.info);
   if (t.dataset.shop !== undefined) return openShop(t.dataset.shop);
+  if (t.dataset.store) return findStore(t.dataset.store);
   if (t.dataset.close !== undefined) return closeInfo();
   if (t.dataset.day){ day = +t.dataset.day; render(); scrollTo(0, 0); }
   if (t.dataset.view){ view = t.dataset.view; showN = 8; render(); scrollTo(0, 0); }
