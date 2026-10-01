@@ -258,3 +258,12 @@ footer{text-align:center;margin-top:30px;color:var(--sub);font-size:12px}
   border:1px solid var(--line);background:var(--card);color:var(--shu);font:700 22px/1 var(--sans);box-shadow:var(--shadow);cursor:pointer;
   opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s}
 .totop.on{opacity:1;transform:none;pointer-events:auto}
+
+/* 타베로그 리뷰 */
+.tbl{display:flex;flex-direction:column;gap:6px}
+.tbs{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+.tbs b{font-size:26px;color:#e8a33d;font-weight:800}
+.tbs span{font-size:13px;opacity:.75}
+.tbr{font-size:14px;line-height:1.55;padding:8px 10px;border-radius:10px;background:rgba(0,0,0,.035)}
+.tbq{font-size:14px;line-height:1.55;padding:8px 12px;border-left:3px solid #e8a33d;background:rgba(232,163,61,.08);border-radius:0 10px 10px 0}
+.tbq span{display:block;font-size:12px;opacity:.65;margin-top:3px}

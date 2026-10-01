@@ -142,6 +142,9 @@ function infoBlock(k, first){
       ${x.menu ? `<h3>${esc(x.menu.title)}</h3><div class="menu">${x.menu.items.map(m => `<div class="mi"><div><b>${esc(m[0])}</b><span>${esc(m[1])}</span></div><em>${esc(m[2])}</em></div>`).join("")}</div>${x.menu.note ? `<div class="tip">${esc(x.menu.note)}</div>` : ""}` : ""}
       ${x.story && x.story.length ? `<h3>${x.menu ? "음식 이야기" : "이야기"}</h3><div class="story">${x.story.map(p => `<p>${esc(p)}</p>`).join("")}</div>` : ""}
       ${x.look && x.look.length ? `<h3>놓치지 말 것</h3><ul class="look">${x.look.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
+      ${x.tabelog ? `<h3>타베로그 리뷰</h3><div class="tbl"><div class="tbs"><b>${esc(x.tabelog.score)}</b><span>타베로그 점수 · 리뷰 ${esc(x.tabelog.reviews)}건${x.tabelog.asof ? ` · ${esc(x.tabelog.asof)} 기준` : ""}</span></div>
+        ${(x.tabelog.good || []).map(p => `<div class="tbr g">👍 ${esc(p)}</div>`).join("")}${(x.tabelog.bad || []).map(p => `<div class="tbr b">🤔 ${esc(p)}</div>`).join("")}
+        ${(x.tabelog.quotes || []).map(q => `<div class="tbq">“${esc(q[2])}”<span>${[q[1], q[0] && q[0] + " 리뷰"].filter(Boolean).map(esc).join(" · ")}</span></div>`).join("")}</div>` : ""}
       ${x.tips && x.tips.length ? `<h3>알아두면 좋아요</h3>${x.tips.map(p => `<div class="tip">${esc(p)}</div>`).join("")}` : ""}
       <div class="srcs">출처 · ${(x.src || []).map(s => `<a href="${s[1]}" target="_blank" rel="noopener">${esc(s[0])}</a>`).join(" · ")}</div>
     </div>`;
