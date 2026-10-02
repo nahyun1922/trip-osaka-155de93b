@@ -240,7 +240,7 @@ window.TRIP = {
      "kind": "rest",
      "ic": "🛂",
      "b": "입국심사 · 짐 찾기 · 합류",
-     "n": "입국심사·짐 찾기 약 50분 · 집결지: 제1터미널 1층 난바행 11번 승차장 · 먼저 나온 팀이 여기서 기다리기 · 버스표는 미리 사 둠",
+     "n": "입국심사·짐 찾기 약 50분 · 집결지: 제1터미널 1층 난바행 11번 승차장",
      "pin": "https://www.google.com/maps/search/?api=1&query=34.4362,135.245189"
     },
     {
@@ -904,6 +904,7 @@ window.TRIP = {
   ["1일차 리무진버스표 구매 (난바 OCAT 왕복 2,500엔·14일 유효 — 편도 두 번 2,800엔보다 쌈)", "https://www.kate.co.jp/kr/timetable/detail/OC"],
   ["1일차 나미요시안 카페 예약 (완전 예약제)", "https://www.hotpepper.jp/strJ001084881/yoyaku/"],
   ["1일차 돈보리강 크루즈 예약 (공식 웹예약 · 1인 2,000엔 · 시간 지정, 출항 10분 전까지)", "https://cloud-pass.jp/project/BOAT"],
+  ["2일차 교토 버스투어 예약 (유투어버스 · 오사카 출발 교토 1일 · 08:15까지 미팅)", "https://smartstore.naver.com/youtourbus/products/2462426244"],
   ["2일차 덴류지 시게쓰 예약 (「雪」는 2일 전까지)", "https://www.tenryuji.com/shigetsu/contact.html"],
   ["2일차 저녁 한국요리 정 예약 (늘 붐빔)", "https://tabelog.com/kr/osaka/A2701/A270202/27099661/"],
   ["3일차 스시 아마토 점심 예약 (전날까지 온라인)", "https://tabelog.com/kr/osaka/A2701/A270202/27149418/"],
