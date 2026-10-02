@@ -186,7 +186,7 @@ window.TRIP = {
   "osakanamba": "오사카난바역",
   "ocat": "OCAT 버스터미널",
   "hotel": "숙소",
-  "twintower": "산-SUN- (OBP)",
+  "twintower": "다이나믹 Kitchen & Bar 썬(SUN) (OBP)",
   "tsuruton": "교토버스투어 (츠루동탄 앞)",
   "tazaemon": "크루즈 선착장",
   "jrnara": "JR나라역",
@@ -741,7 +741,7 @@ window.TRIP = {
      "pt": "twintower",
      "info": "sun",
      "eg": "실제 방문 사진 · 창가 자리에서 본 오사카성",
-     "b": "산-SUN- OBP트윈타워점 (38층)",
+     "b": "다이나믹 Kitchen & Bar 썬(SUN) OBP트윈타워점 (38층)",
      "n": "타베로그 3.48 · 창밖으로 오사카성이 보이는 38층 · 평일 런치 11:00~14:00 (주문 마감 13:30) · 도미솥밥 무한리필 정식 1,400~2,800엔 · 12:45 예약 완료",
      "map": "燦 SUN OBPツインタワー店",
      "pos": "50% 60%"
@@ -1583,7 +1583,7 @@ window.TRIP = {
    ]
   },
   "sun": {
-   "name": "산-SUN- OBP 트윈타워점",
+   "name": "다이나믹 Kitchen & Bar 썬(SUN) OBP 트윈타워점",
    "local": "Dynamic Kitchen & Bar 燦 SUN OBPツインタワー店",
    "lead": "OBP 트윈21 MID타워 38층(높이 약 150m)에 있는 일식 식당이에요. 창가 자리에서는 오사카성이 내려다보여요.",
    "facts": [
@@ -2926,7 +2926,7 @@ window.TRIP = {
    "https://en.wikipedia.org/wiki/Wagashi"
   ],
   [
-   "산-SUN- 가게 사진 · 핫페퍼 구르메",
+   "다이나믹 Kitchen & Bar 썬(SUN) 가게 사진 · 핫페퍼 구르메",
    "https://www.hotpepper.jp/strJ000014341/photo/"
   ],
   [
@@ -4298,7 +4298,7 @@ window.TRIP = {
   ],
   "twintower": [
    "🍽️",
-   "산-SUN-",
+   "다이나믹 Kitchen & Bar 썬(SUN)",
    "오사카"
   ],
   "jrnara": [
