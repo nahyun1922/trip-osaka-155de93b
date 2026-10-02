@@ -71,7 +71,7 @@ function entry(it, cls, num){
     const chips = (it.status === "tbd" ? ' <span class="chip t">미정</span>' : '') + (chk(it.n) ? ' <span class="chip t">확인 필요</span>' : '');
     body = `<div class="row">${it.img ? `<img src="${IMG(it.img)}" alt="" loading="lazy">` : `<div class="ico">${it.ic || "•"}</div>`}
       <div><div class="h">${esc(it.b)}${chips}</div>${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}</div>
-      ${hasInfo(it.info) ? `<button class="mini" data-info="${it.info}">📖 이야기</button>` : ""}${it.map ? `<a class="mini" href="${it.from && it.to ? gdir(it.from, it.to, it.mode) : gmap(it.map)}" target="_blank" rel="noopener">${it.from && it.to ? "🧭 길찾기" : "지도"}</a>` : ""}</div>${it.meal ? nearRow(it) : ""}`;
+      ${hasInfo(it.info) ? `<button class="mini" data-info="${it.info}">📖 이야기</button>` : ""}${it.map ? `<a class="mini" href="${it.dir || (it.from && it.to ? gdir(it.from, it.to, it.mode) : gmap(it.map))}" target="_blank" rel="noopener">${it.dir || (it.from && it.to) ? "🧭 길찾기" : "지도"}</a>` : ""}</div>${it.meal ? nearRow(it) : ""}`;
   }
   return `<div class="entry ${type} ${cls}"${pt}>${n}<div class="tm">${esc(it.t)}${tag}</div>${body}</div>`;
 }
@@ -236,8 +236,9 @@ function shopTile(p, i){
     <div class="ph">${p.img ? `<img src="${IMG(p.img)}" alt="" loading="lazy">` : `<div class="noimg">${p.ic || "🛍️"}</div>`}</div>
     <div class="tx"><b>${esc(p.n)}</b><div class="n">${clean(p.d)}</div></div></div>`;
 }
-const STORE_KINDS = ["돈키호테", "칼디", "마트", "약국·드럭스토어", "스탠다드프로덕트", "아카짱혼포"];
-function findStore(name){
+const STORE_KINDS = ["돈키호테", "칼디", "마트", "약국·드럭스토어", "빅카메라", "스탠다드프로덕트", "아카짱혼포", "GU"];
+function findStore(label){
+  const name = {"빅카메라": "ビックカメラ", "GU": "GU ジーユー"}[label] || label;
   const win = window.open("", "_blank");
   const url = p => `https://www.google.com/maps/search/${encodeURIComponent(name)}/@${p[0]},${p[1]},15z`;
   const fallback = `https://www.google.com/maps/search/${encodeURIComponent(name + " 근처")}`;
