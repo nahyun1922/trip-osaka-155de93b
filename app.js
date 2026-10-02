@@ -1,5 +1,5 @@
 // 화면 그리기. 일정 내용은 data.js 에 있습니다.
-const {TITLE, UPDATED, SOURCE_VERSION, LODGING, FLIGHTS, PT, PTNAME, PTICON, DAYS, TRANSPORT, TODO, INFO, CREDITS, HAS_IMG, FOOD, SHOPLIST} = window.TRIP;
+const {TITLE, UPDATED, LODGING, FLIGHTS, PT, PTNAME, PTICON, DAYS, TRANSPORT, TODO, INFO, CREDITS, HAS_IMG, FOOD, SHOPLIST} = window.TRIP;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -236,9 +236,9 @@ function shopTile(p, i){
     <div class="ph">${p.img ? `<img src="${IMG(p.img)}" alt="" loading="lazy">` : `<div class="noimg">${p.ic || "🛍️"}</div>`}</div>
     <div class="tx"><b>${esc(p.n)}</b><div class="n">${clean(p.d)}</div></div></div>`;
 }
-const STORE_KINDS = ["돈키호테", "칼디", "마트", "약국·드럭스토어", "빅카메라", "스탠다드프로덕트", "아카짱혼포", "GU"];
+const STORE_KINDS = ["돈키호테", "칼디", "마트", "약국·드럭스토어", "빅카메라", "스탠다드프로덕트", "아카짱혼포", "GU", "난바시티", "다이소", "편의점"];
 function findStore(label){
-  const name = {"빅카메라": "ビックカメラ", "GU": "GU ジーユー"}[label] || label;
+  const name = {"빅카메라": "ビックカメラ", "GU": "GU ジーユー", "난바시티": "なんばCITY", "다이소": "ダイソー", "편의점": "コンビニ"}[label] || label;
   const win = window.open("", "_blank");
   const url = p => `https://www.google.com/maps/search/${encodeURIComponent(name)}/@${p[0]},${p[1]},15z`;
   const fallback = `https://www.google.com/maps/search/${encodeURIComponent(name + " 근처")}`;
@@ -292,13 +292,18 @@ function infoView(){
       <div class="small" style="margin-top:4px">택시 기사님께 위 일본어 주소를 보여 주세요</div>
       <div style="color:var(--sub);font-size:14px;margin-top:8px">${esc(LODGING.note)}</div>
       <a class="btn" href="https://www.google.com/maps/search/?api=1&query=${PT.hotel[0]},${PT.hotel[1]}" target="_blank" rel="noopener">📍 숙소 지도 열기</a></div>
-    <div class="sectitle">장소 이야기 모음 <span class="jp">物語</span></div>
-    <div class="box" style="display:flex;flex-wrap:wrap;gap:8px">${Object.keys(INFO).filter(hasInfo).map(k => `<button class="stop" data-info="${k}" style="padding:5px 12px">${esc(INFO[k].name)}</button>`).join("")}</div>
-    <div class="sectitle">아직 정할 것 <span class="jp">未定</span></div><div class="box"><ul>${TODO.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
-    <div class="sectitle">이 화면 <span class="jp">記</span></div>
-    <div class="box"><div>마지막 수정 <b>${UPDATED}</b></div><div class="small">${esc(SOURCE_VERSION)}</div>
+    ${LODGING.amen ? `<div class="sectitle" style="font-size:16px">숙소에 있는 것 <span class="jp">設備</span></div>
+    <div class="box">${LODGING.amen.map(a => `<div style="margin:0 0 10px"><b>${a[0]} ${esc(a[1])}</b><div style="color:var(--sub);font-size:14px;margin-top:2px">${esc(a[2])}</div></div>`).join("")}
+      <div class="small">숙소 소개글과 숙박 후기를 모은 거예요.</div>
+      ${LODGING.url ? `<a class="btn" href="${LODGING.url}" target="_blank" rel="noopener">🏠 에어비앤비 숙소 페이지</a>` : ""}</div>` : ""}
+    <div class="sectitle">아직 정할 것 <span class="jp">未定</span></div><div class="box"><ul>${TODO.map(x => Array.isArray(x)
+      ? `<li><a href="${x[1]}" target="_blank" rel="noopener" style="color:var(--shu);font-weight:700">${esc(x[0])} ›</a></li>` : `<li>${esc(x)}</li>`).join("")}</ul>
+      <div class="small" style="margin-top:8px">빨간 글씨를 누르면 예약 페이지가 열려요.</div></div>
+    <div class="sectitle">출처 <span class="jp">記</span></div>
+    <div class="box"><div>마지막 수정 <b>${UPDATED}</b></div>
+      <details style="margin-top:10px"><summary class="small" style="cursor:pointer">출처 펼쳐 보기</summary>
       <div class="small" style="margin-top:10px">사진·장소 이야기: 위키백과·위키미디어 공용. 코스 지도: © OpenStreetMap 기여자.</div>
-      <div class="small" style="margin-top:4px;line-height:1.9">${CREDITS.map(c => `<a href="${c[1]}" target="_blank" rel="noopener">${esc(c[0])}</a>`).join(" · ")}</div></div>`;
+      <div class="small" style="margin-top:4px;line-height:1.9">${CREDITS.map(c => `<a href="${c[1]}" target="_blank" rel="noopener">${esc(c[0])}</a>`).join(" · ")}</div></details></div>`;
 }
 
 // ---------- 화면 ----------
