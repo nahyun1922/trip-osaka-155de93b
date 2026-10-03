@@ -59,7 +59,7 @@ function entry(it, cls, num){
     const keys = [it.info, it.info2].filter(hasInfo).join(",");
     const story = keys ? `<button class="b-story" data-info="${keys}">📖 이야기 읽기</button>` : "";
     const story2 = "";
-    const mp = it.map ? `<a class="b-map" href="${gmap(it.map)}" target="_blank" rel="noopener">📍 길찾기</a>` : "";
+    const mp = it.map ? `<a class="b-map" href="${it.dir || gmap(it.map)}" target="_blank" rel="noopener">📍 길찾기</a>` : "";
     body = `<div class="cardx"><div class="ph"${hasInfo(it.info) ? ` data-info="${it.info}"` : ""}><img src="${IMG(it.img)}" alt="" loading="lazy" style="object-position:${it.pos || "50% 50%"}">
       <div class="pl">${pills}</div>${it.eg ? `<span class="eg">${esc(it.eg)}</span>` : ""}</div>
       <div class="tx">${it.loc ? `<div class="loc">${esc(it.loc)}</div>` : ""}<div class="h">${it.meal ? "🍴 " : ""}${esc(it.b)}</div>
