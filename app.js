@@ -139,7 +139,7 @@ function infoBlock(k, first){
   return `${top}<div class="sh-bd${first ? "" : " sh-2"}">
       <div class="jp">${esc(x.local)}</div><h2>${esc(x.name)}</h2>
       ${x.lead ? `<p class="lead">${esc(x.lead)}</p>` : ""}
-      ${x.menu ? `<h3>${esc(x.menu.title)}</h3><div class="menu">${x.menu.items.map(m => `<div class="mi"><div><b>${esc(m[0])}</b><span>${esc(m[1])}</span></div><em>${esc(m[2])}</em></div>`).join("")}</div>${x.menu.note ? `<div class="tip">${esc(x.menu.note)}</div>` : ""}` : ""}
+      ${[x.menu, x.menu2].filter(Boolean).map(mn => `<h3>${esc(mn.title)}</h3><div class="menu">${mn.items.map(m => `<div class="mi"><div><b>${esc(m[0])}</b><span>${esc(m[1])}</span></div><em>${esc(m[2])}</em></div>`).join("")}</div>${mn.note ? `<div class="tip">${esc(mn.note)}</div>` : ""}`).join("")}
       ${x.facts && x.facts.length ? `<div class="facts">${x.facts.map(f => `<div class="fact"><div class="k">${esc(f[0])}</div><div class="v">${esc(f[1])}</div></div>`).join("")}</div>` : ""}
       ${x.story && x.story.length ? `<h3>${x.menu ? "음식 이야기" : "이야기"}</h3><div class="story">${x.story.map(p => `<p>${esc(p)}</p>`).join("")}</div>` : ""}
       ${x.look && x.look.length ? `<h3>놓치지 말 것</h3><ul class="look">${x.look.map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
