@@ -1,5 +1,5 @@
 window.TRIP = {
- "UPDATED": "2026-10-04",
+ "UPDATED": "2026-10-05",
  "LODGING": {
   "name": "숙소 room507",
   "url": "https://www.airbnb.co.kr/rooms/42977972",
@@ -4085,8 +4085,8 @@ window.TRIP = {
    "n": "Dontsuki",
    "m": "",
    "p": [
-    35.007404,
-    135.758689
+    35.007441,
+    135.758688
    ],
    "cid": "18402212112583837145"
   },
