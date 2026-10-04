@@ -200,7 +200,7 @@ function locate(){
   if (!navigator.geolocation){ geoMsg = "이 폰에서는 위치 기능을 쓸 수 없어요."; render(); return; }
   geoMsg = "현재 위치를 찾는 중…"; base = "me"; render();
   navigator.geolocation.getCurrentPosition(
-    p => { myPos = [p.coords.latitude, p.coords.longitude]; geoMsg = ""; const f = nearest(myPos, 1)[0];
+    p => { myPos = [p.coords.latitude, p.coords.longitude]; myAt = Date.now(); geoMsg = ""; const f = nearest(myPos, 1)[0];
            if (f && f.dist > 30000) geoMsg = "지금 위치에서 30km 안에 저장한 맛집이 없어요. 여행지에 도착하면 다시 눌러 보세요."; render(); },
     e => { geoMsg = e.code === 1 ? "위치 권한이 꺼져 있어요. 폰 설정에서 브라우저 위치 권한을 허용해 주세요." : "위치를 찾지 못했어요. 잠시 뒤 다시 눌러 보세요."; base = "hotel"; render(); },
     {enableHighAccuracy: true, timeout: 12000, maximumAge: 60000});
@@ -237,27 +237,36 @@ function shopTile(p, i){
     <div class="tx"><b>${esc(p.n)}</b><div class="n">${clean(p.d)}</div></div></div>`;
 }
 const STORE_KINDS = ["돈키호테", "칼디", "마트", "약국·드럭스토어", "빅카메라", "스탠다드프로덕트", "아카짱혼포", "GU", "난바시티", "다이소", "편의점"];
-function findStore(label){
-  const name = {"빅카메라": "ビックカメラ", "GU": "GU ジーユー", "난바시티": "なんばCITY", "다이소": "ダイソー", "편의점": "コンビニ"}[label] || label;
-  const win = window.open("", "_blank");
-  const url = p => `https://www.google.com/maps/search/${encodeURIComponent(name)}/@${p[0]},${p[1]},15z`;
-  const fallback = `https://www.google.com/maps/search/${encodeURIComponent(name + " 근처")}`;
-  if (!win) return;
-  if (!navigator.geolocation){ win.location = fallback; return; }
-  win.document.write("위치 확인 중…");
+// 구글 지도 검색어 (마트=スーパー: 라이프·이온·만다이 같은 슈퍼가 다 나옴)
+const STORE_Q = {"마트": "スーパー", "약국·드럭스토어": "ドラッグストア", "빅카메라": "ビックカメラ", "스탠다드프로덕트": "Standard Products", "GU": "GU ジーユー", "난바시티": "なんばCITY", "다이소": "ダイソー", "편의점": "コンビニ"};
+let myAt = 0, shopMsg = "", shopBusy = false;
+function storeUrl(label){
+  const q = encodeURIComponent(STORE_Q[label] || label);
+  return myPos ? `https://www.google.com/maps/search/${q}/@${myPos[0]},${myPos[1]},15z` : `https://www.google.com/maps/search/?api=1&query=${q}`;
+}
+// 위치는 쇼핑 탭 안에서 먼저 잡아 둔다 (새 창에서 기다리면 권한 창이 뒤에 숨어 멈춤)
+function shopLocate(){
+  if (!navigator.geolocation){ shopMsg = "이 폰에서는 위치 기능을 쓸 수 없어요. 눌러도 구글 지도는 열려요."; render(); return; }
+  shopBusy = true; shopMsg = ""; render();
   navigator.geolocation.getCurrentPosition(
-    p => { win.location = url([p.coords.latitude, p.coords.longitude]); },
-    () => { win.location = fallback; },
-    {timeout: 8000}
-  );
+    p => { myPos = [p.coords.latitude, p.coords.longitude]; myAt = Date.now(); shopBusy = false; render(); },
+    e => { shopBusy = false; shopMsg = e.code === 1 ? "위치 권한이 꺼져 있어요. 폰 설정에서 브라우저 위치 권한을 허용해 주세요. 눌러도 구글 지도는 열려요." : "위치를 찾지 못했어요. 눌러도 구글 지도는 열려요."; render(); },
+    {enableHighAccuracy: true, timeout: 12000, maximumAge: 60000});
+}
+function shopLocNote(){
+  if (shopBusy) return "📍 내 위치 찾는 중… 지금 눌러도 구글 지도가 열려요.";
+  if (shopMsg) return esc(shopMsg) + ' <button class="more" data-shoploc style="display:inline;width:auto;padding:2px 10px;margin:0">다시 찾기</button>';
+  if (myPos){ const t = new Date(myAt || Date.now()); return `📍 내 위치 기준으로 열려요 (${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")} 확인) <button class="more" data-shoploc style="display:inline;width:auto;padding:2px 10px;margin:0">다시 찾기</button>`; }
+  return '<button class="more" data-shoploc style="display:inline;width:auto;padding:2px 10px;margin:0">📍 내 위치 찾기</button>';
 }
 function shopView(){
   let i = -1;
   return `<div class="sectitle">쇼핑 리스트 <span class="jp">買物</span></div>
     <div class="small" style="margin:-4px 18px 10px">SNS에서 모은 쇼핑템을 매장별로 정리했어요. 눌러보면 가격·추천 이유를 볼 수 있어요.</div>
     <div class="sectitle" style="font-size:16px">📍 근처 매장 찾기 <span class="jp">店探し</span></div>
-    <div class="small" style="margin:-4px 18px 8px">지금 내 위치에서 가까운 매장을 구글 지도로 열어요.</div>
-    <div class="box" style="display:flex;flex-wrap:wrap;gap:8px">${STORE_KINDS.map(k => `<button class="stop" data-store="${esc(k)}" style="padding:5px 12px">${esc(k)}</button>`).join("")}</div>` +
+    <div class="small" style="margin:-4px 18px 8px">지금 내 위치에서 가까운 매장을 구글 지도로 열어요. 마트는 라이프·이온 같은 슈퍼마켓이 다 나와요.</div>
+    <div class="box"><div style="display:flex;flex-wrap:wrap;gap:8px">${STORE_KINDS.map(k => `<a class="stop" href="${storeUrl(k)}" target="_blank" rel="noopener" style="padding:5px 12px;color:inherit;text-decoration:none">${esc(k)}</a>`).join("")}</div>
+      <div class="small" style="margin-top:10px">${shopLocNote()}</div></div>` +
     SHOPLIST.map(cat => `<div class="sectitle" style="font-size:16px;margin-top:22px">${cat.ic} ${esc(cat.cat)}</div>
       ${cat.note ? `<div class="small" style="margin:-4px 18px 8px">${clean(cat.note)}</div>` : ""}
       <div class="sgrid">${cat.items.map(p => shopTile(p, ++i)).join("")}</div>`).join("");
@@ -323,13 +332,13 @@ function render(){
   const n = document.querySelector(".entry.now"); if (n && !qs.get("noscroll")) setTimeout(() => n.scrollIntoView({block: "center"}), 300);
 }
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-info],[data-shop],[data-store],[data-day],[data-view],[data-goto],[data-close],[data-base],[data-more]"); if (!t) return;
+  const t = e.target.closest("[data-info],[data-shop],[data-shoploc],[data-day],[data-view],[data-goto],[data-close],[data-base],[data-more]"); if (!t) return;
   if (t.dataset.info) return openInfo(t.dataset.info);
   if (t.dataset.shop !== undefined) return openShop(t.dataset.shop);
-  if (t.dataset.store) return findStore(t.dataset.store);
+  if (t.dataset.shoploc !== undefined) return shopLocate();
   if (t.dataset.close !== undefined) return closeInfo();
   if (t.dataset.day){ day = +t.dataset.day; render(); scrollTo(0, 0); }
-  if (t.dataset.view){ view = t.dataset.view; showN = 8; render(); scrollTo(0, 0); }
+  if (t.dataset.view){ view = t.dataset.view; showN = 8; render(); scrollTo(0, 0); if (view === "shop" && !shopBusy && Date.now() - myAt > 180000) shopLocate(); }
   if (t.dataset.base){ showN = 8; if (t.dataset.base === "me") return locate(); base = t.dataset.base; geoMsg = ""; render(); }
   if (t.dataset.more !== undefined){ showN += 10; render(); }
   if (t.dataset.goto){ const el = document.querySelector(`.entry[data-pt="${t.dataset.goto}"]`); if (el){ el.classList.add("in"); el.scrollIntoView({behavior: "smooth", block: "center"}); } }
@@ -340,5 +349,6 @@ const topBtn = $("#totop");
 addEventListener("scroll", () => topBtn.classList.toggle("on", scrollY > 500), {passive: true});
 topBtn.addEventListener("click", () => scrollTo({top: 0, behavior: "smooth"}));
 render();
+if (view === "shop") shopLocate();
 if (qs.get("info")) openInfo(qs.get("info"));
 try { navigator.serviceWorker && navigator.serviceWorker.register("sw.js"); } catch (e){}
