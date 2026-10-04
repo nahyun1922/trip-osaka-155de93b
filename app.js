@@ -262,7 +262,7 @@ function shopLocNote(){
 function shopView(){
   let i = -1;
   return `<div class="sectitle">쇼핑 리스트 <span class="jp">買物</span></div>
-    <div class="small" style="margin:-4px 18px 10px">SNS에서 모은 쇼핑템을 매장별로 정리했어요. 눌러보면 가격·추천 이유를 볼 수 있어요.</div>
+    <div class="small" style="margin:-4px 18px 10px">오사카에서 사 올 만한 것들을 매장별로 모았어요. 눌러 보면 가격과 사야 하는 이유가 나와요.</div>
     <div class="sectitle" style="font-size:16px">📍 근처 매장 찾기 <span class="jp">店探し</span></div>
     <div class="small" style="margin:-4px 18px 8px">지금 내 위치에서 가까운 매장을 구글 지도로 열어요. 마트는 라이프·이온 같은 슈퍼마켓이 다 나와요.</div>
     <div class="box"><div style="display:flex;flex-wrap:wrap;gap:8px">${STORE_KINDS.map(k => `<a class="stop" href="${storeUrl(k)}" target="_blank" rel="noopener" style="padding:5px 12px;color:inherit;text-decoration:none">${esc(k)}</a>`).join("")}</div>
