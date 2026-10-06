@@ -236,9 +236,9 @@ function shopTile(p, i){
     <div class="ph">${p.img ? `<img src="${IMG(p.img)}" alt="" loading="lazy">` : `<div class="noimg">${p.ic || "🛍️"}</div>`}</div>
     <div class="tx"><b>${esc(p.n)}</b><div class="n">${clean(p.d)}</div></div></div>`;
 }
-const STORE_KINDS = ["돈키호테", "칼디", "마트", "약국·드럭스토어", "빅카메라", "스탠다드프로덕트", "아카짱혼포", "GU", "난바시티", "다이소", "3COINS", "편의점"];
+const STORE_KINDS = ["돈키호테", "칼디", "마트", "약국·드럭스토어", "스탠다드프로덕트", "GU", "난바시티", "다이소", "3COINS", "편의점"];
 // 구글 지도 검색어 (마트=スーパー: 라이프·이온·만다이 같은 슈퍼가 다 나옴)
-const STORE_Q = {"마트": "スーパー", "약국·드럭스토어": "ドラッグストア", "빅카메라": "ビックカメラ", "스탠다드프로덕트": "Standard Products", "GU": "GU ジーユー", "난바시티": "なんばCITY", "다이소": "ダイソー", "3COINS": "3COINS スリーコインズ", "편의점": "コンビニ"};
+const STORE_Q = {"마트": "スーパー", "약국·드럭스토어": "ドラッグストア", "스탠다드프로덕트": "Standard Products", "GU": "GU ジーユー", "난바시티": "なんばCITY", "다이소": "ダイソー", "3COINS": "3COINS スリーコインズ", "편의점": "コンビニ"};
 let myAt = 0, shopMsg = "", shopBusy = false;
 function storeUrl(label){
   const q = encodeURIComponent(STORE_Q[label] || label);
