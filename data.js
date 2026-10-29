@@ -1,5 +1,5 @@
 window.TRIP = {
- "UPDATED": "2026-10-28",
+ "UPDATED": "2026-10-30",
  "LODGING": {
   "name": "숙소 room507",
   "url": "https://www.airbnb.co.kr/rooms/42977972",
@@ -3698,7 +3698,7 @@ window.TRIP = {
    "n": "Sushi YOSAKURA Shinsaibashi",
    "m": "",
    "p": [
-    34.670448,
+    34.670408,
     135.501064
    ],
    "cid": "14723334637796367461"
