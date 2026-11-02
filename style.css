@@ -227,6 +227,13 @@ footer{text-align:center;margin-top:30px;color:var(--sub);font-size:12px}
 
 /* 쇼핑 리스트: 2열 그리드, 제품당 사진 1장 */
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px}
+.sq{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:var(--paper);color:inherit;outline:none}
+.sq:focus{border-color:var(--shu)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.stop.chip{padding:5px 11px;font-size:13px;color:inherit;font-family:inherit}
+.stop.chip small{color:var(--sub);font-size:11px;margin-left:2px}
+.stop.chip.on{background:var(--shu);border-color:var(--shu);color:#fff}
+.stop.chip.on small{color:#fff}
 .stile{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--line);cursor:pointer}
 .stile .ph{aspect-ratio:1/1;background:var(--paper2)}
 .stile .ph img{width:100%;height:100%;object-fit:cover;display:block}

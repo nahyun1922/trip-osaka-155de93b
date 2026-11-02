@@ -246,11 +246,11 @@ function storeUrl(label){
 }
 // 위치는 쇼핑 탭 안에서 먼저 잡아 둔다 (새 창에서 기다리면 권한 창이 뒤에 숨어 멈춤)
 function shopLocate(){
-  if (!navigator.geolocation){ shopMsg = "이 폰에서는 위치 기능을 쓸 수 없어요. 눌러도 구글 지도는 열려요."; render(); return; }
-  shopBusy = true; shopMsg = ""; render();
+  if (!navigator.geolocation){ shopMsg = "이 폰에서는 위치 기능을 쓸 수 없어요. 눌러도 구글 지도는 열려요."; shopLocRender(); return; }
+  shopBusy = true; shopMsg = ""; shopLocRender();
   navigator.geolocation.getCurrentPosition(
-    p => { myPos = [p.coords.latitude, p.coords.longitude]; myAt = Date.now(); shopBusy = false; render(); },
-    e => { shopBusy = false; shopMsg = e.code === 1 ? "위치 권한이 꺼져 있어요. 폰 설정에서 브라우저 위치 권한을 허용해 주세요. 눌러도 구글 지도는 열려요." : "위치를 찾지 못했어요. 눌러도 구글 지도는 열려요."; render(); },
+    p => { myPos = [p.coords.latitude, p.coords.longitude]; myAt = Date.now(); shopBusy = false; shopLocRender(); },
+    e => { shopBusy = false; shopMsg = e.code === 1 ? "위치 권한이 꺼져 있어요. 폰 설정에서 브라우저 위치 권한을 허용해 주세요. 눌러도 구글 지도는 열려요." : "위치를 찾지 못했어요. 눌러도 구글 지도는 열려요."; shopLocRender(); },
     {enableHighAccuracy: true, timeout: 12000, maximumAge: 60000});
 }
 function shopLocNote(){
@@ -259,17 +259,52 @@ function shopLocNote(){
   if (myPos){ const t = new Date(myAt || Date.now()); return `📍 내 위치 기준으로 열려요 (${String(t.getHours()).padStart(2, "0")}:${String(t.getMinutes()).padStart(2, "0")} 확인) <button class="more" data-shoploc style="display:inline;width:auto;padding:2px 10px;margin:0">다시 찾기</button>`; }
   return '<button class="more" data-shoploc style="display:inline;width:auto;padding:2px 10px;margin:0">📍 내 위치 찾기</button>';
 }
+// 쇼핑 찾기: 검색어 + 종류 + 매장 (탭을 옮겨도 고른 값은 남는다)
+const SHOP_TYPES = [["약·영양제", "💊"], ["화장품·몸관리", "🧴"], ["간식·디저트", "🍬"], ["편의점 한끼", "🍙"], ["음료·차", "🥤"], ["소스·요리재료", "🍛"], ["생활·주방용품", "🧽"], ["가방·여행소품", "👜"]];
+let shopQ = "", shopT = "", shopS = "";
+// 비슷한 말도 같이 찾는다 (예: 안약 → 인공눈물·점안액도)
+const SHOP_SYN = {"안약": ["인공눈물", "점안액"], "인공눈물": ["안약"], "눈": ["안약", "인공눈물"], "유산균": ["정장제"], "정장제": ["유산균"], "위장약": ["위장", "소화"], "소화": ["위장"], "영양제": ["보조식품", "영양"], "숙취": ["간영양제"], "과자": ["쿠키", "칩", "캔디", "사탕", "아메"], "사탕": ["캔디", "아메"], "캔디": ["사탕"], "아이스크림": ["아이스"], "음료": ["차", "커피", "사이다", "생수", "밀크티"], "장바구니": ["에코백", "보냉백"], "가방": ["백", "파우치"], "라면": ["탄멘"], "선물": ["기념"]};
+const shopNorm = s => String(s || "").toLowerCase().replace(/\s+/g, "");
+SHOP_FLAT.forEach((p, i) => { p.idx = i; p.hay = shopNorm([p.n, p.jp, p.d, p.why, p.cat, p.t, p.price].join(" ")); });
+function shopHits(){
+  const words = shopQ.trim().split(/\s+/).map(shopNorm).filter(Boolean).map(w => [w, ...(SHOP_SYN[w] || [])]);
+  return SHOP_FLAT.filter(p => (!shopT || p.t === shopT) && (!shopS || p.cat === shopS) && words.every(ws => ws.some(w => p.hay.includes(w))));
+}
+function shopChips(){
+  const chip = (attr, val, on, label) => `<button class="stop chip ${on ? "on" : ""}" ${attr}="${esc(val)}">${label}</button>`;
+  const cnt = t => SHOP_FLAT.filter(p => p.t === t && (!shopS || p.cat === shopS)).length;
+  return `<div class="small" style="margin:12px 0 6px">종류</div><div class="chips">${chip("data-stype", "", !shopT, "전체")}${SHOP_TYPES.map(([t, ic]) => chip("data-stype", t, shopT === t, `${ic} ${esc(t)} <small>${cnt(t)}</small>`)).join("")}</div>
+    <div class="small" style="margin:12px 0 6px">매장</div><div class="chips">${chip("data-sstore", "", !shopS, "전체")}${SHOPLIST.map(c => chip("data-sstore", c.cat, shopS === c.cat, `${c.ic} ${esc(c.cat)}`)).join("")}</div>`;
+}
+function shopResults(){
+  const hits = shopHits(), filtered = shopQ.trim() || shopT || shopS;
+  const head = filtered ? `<div class="small" style="margin:14px 18px 0">${hits.length ? `${hits.length}개 찾았어요` : "맞는 상품이 없어요. 다른 낱말로 찾아보세요."} <button class="more" data-sreset style="display:inline;width:auto;padding:2px 10px;margin:0">전체 보기</button></div>` : "";
+  return head + SHOPLIST.map(cat => {
+    const items = hits.filter(p => p.cat === cat.cat); if (!items.length) return "";
+    return `<div class="sectitle" style="font-size:16px;margin-top:22px">${cat.ic} ${esc(cat.cat)}${filtered ? ` <small style="font-size:13px;color:var(--sub)">${items.length}</small>` : ""}</div>
+      ${cat.note && !filtered ? `<div class="small" style="margin:-4px 18px 8px">${clean(cat.note)}</div>` : ""}
+      <div class="sgrid">${items.map(p => shopTile(p, p.idx)).join("")}</div>`;
+  }).join("");
+}
+function shopRefresh(){ const f = $("#shopfil"), r = $("#shopres"); if (f) f.innerHTML = shopChips(); if (r) r.innerHTML = shopResults(); }
+function shopNear(){
+  return `<div style="display:flex;flex-wrap:wrap;gap:8px">${STORE_KINDS.map(k => `<a class="stop" href="${storeUrl(k)}" target="_blank" rel="noopener" style="padding:5px 12px;color:inherit;text-decoration:none">${esc(k)}</a>`).join("")}</div>
+      <div class="small" style="margin-top:10px">${shopLocNote()}</div>`;
+}
+function shopLocRender(){
+  const a = document.activeElement, box = $("#shopnear");
+  if (view === "shop" && box && a && a.id === "shopq") box.innerHTML = shopNear(); else render();
+}
 function shopView(){
-  let i = -1;
   return `<div class="sectitle">쇼핑 리스트 <span class="jp">買物</span></div>
     <div class="small" style="margin:-4px 18px 10px">오사카에서 사 올 만한 것들을 매장별로 모았어요. 눌러 보면 가격과 사야 하는 이유가 나와요.</div>
     <div class="sectitle" style="font-size:16px">📍 근처 매장 찾기 <span class="jp">店探し</span></div>
     <div class="small" style="margin:-4px 18px 8px">지금 내 위치에서 가까운 매장을 구글 지도로 열어요. 마트는 라이프·이온 같은 슈퍼마켓이 다 나와요.</div>
-    <div class="box"><div style="display:flex;flex-wrap:wrap;gap:8px">${STORE_KINDS.map(k => `<a class="stop" href="${storeUrl(k)}" target="_blank" rel="noopener" style="padding:5px 12px;color:inherit;text-decoration:none">${esc(k)}</a>`).join("")}</div>
-      <div class="small" style="margin-top:10px">${shopLocNote()}</div></div>` +
-    SHOPLIST.map(cat => `<div class="sectitle" style="font-size:16px;margin-top:22px">${cat.ic} ${esc(cat.cat)}</div>
-      ${cat.note ? `<div class="small" style="margin:-4px 18px 8px">${clean(cat.note)}</div>` : ""}
-      <div class="sgrid">${cat.items.map(p => shopTile(p, ++i)).join("")}</div>`).join("");
+    <div class="box" id="shopnear">${shopNear()}</div>
+    <div class="sectitle" style="font-size:16px">🔎 상품 찾기 <span class="jp">検索</span></div>
+    <div class="box"><input id="shopq" class="sq" type="search" enterkeyhint="search" autocomplete="off" placeholder="예: 안약, 카레, 위장약, 소스" value="${esc(shopQ)}">
+      <div id="shopfil">${shopChips()}</div></div>
+    <div id="shopres">${shopResults()}</div>`;
 }
 function shopBlock(p){
   return `<div class="sh-ph prod ${p.img ? "" : "none wave"}" ${p.img ? `style="background-image:url(${IMG(p.img)})"` : ""}><div class="grab"></div><button class="x" data-close>✕</button></div>
@@ -332,10 +367,13 @@ function render(){
   const n = document.querySelector(".entry.now"); if (n && !qs.get("noscroll")) setTimeout(() => n.scrollIntoView({block: "center"}), 300);
 }
 document.addEventListener("click", e => {
-  const t = e.target.closest("[data-info],[data-shop],[data-shoploc],[data-day],[data-view],[data-goto],[data-close],[data-base],[data-more]"); if (!t) return;
+  const t = e.target.closest("[data-info],[data-shop],[data-shoploc],[data-stype],[data-sstore],[data-sreset],[data-day],[data-view],[data-goto],[data-close],[data-base],[data-more]"); if (!t) return;
   if (t.dataset.info) return openInfo(t.dataset.info);
   if (t.dataset.shop !== undefined) return openShop(t.dataset.shop);
   if (t.dataset.shoploc !== undefined) return shopLocate();
+  if (t.dataset.stype !== undefined){ shopT = t.dataset.stype; return shopRefresh(); }
+  if (t.dataset.sstore !== undefined){ shopS = t.dataset.sstore; return shopRefresh(); }
+  if (t.dataset.sreset !== undefined){ shopQ = shopT = shopS = ""; const q = $("#shopq"); if (q) q.value = ""; return shopRefresh(); }
   if (t.dataset.close !== undefined) return closeInfo();
   if (t.dataset.day){ day = +t.dataset.day; render(); scrollTo(0, 0); }
   if (t.dataset.view){ view = t.dataset.view; showN = 8; render(); scrollTo(0, 0); if (view === "shop" && !shopBusy && Date.now() - myAt > 180000) shopLocate(); }
@@ -343,6 +381,9 @@ document.addEventListener("click", e => {
   if (t.dataset.more !== undefined){ showN += 10; render(); }
   if (t.dataset.goto){ const el = document.querySelector(`.entry[data-pt="${t.dataset.goto}"]`); if (el){ el.classList.add("in"); el.scrollIntoView({behavior: "smooth", block: "center"}); } }
 });
+// 검색창은 결과 칸만 다시 그려서 글자 치는 중에 키보드가 닫히지 않게 한다
+document.addEventListener("input", e => { if (e.target.id === "shopq"){ shopQ = e.target.value; const r = $("#shopres"); if (r) r.innerHTML = shopResults(); } });
+document.addEventListener("keydown", e => { if (e.target.id === "shopq" && e.key === "Enter"){ e.target.blur(); const r = $("#shopres"); if (r) r.scrollIntoView({behavior: "smooth", block: "start"}); } });
 $("#veil").addEventListener("click", () => closeInfo());
 // 맨 위로
 const topBtn = $("#totop");
