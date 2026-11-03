@@ -371,8 +371,8 @@ document.addEventListener("click", e => {
   if (t.dataset.info) return openInfo(t.dataset.info);
   if (t.dataset.shop !== undefined) return openShop(t.dataset.shop);
   if (t.dataset.shoploc !== undefined) return shopLocate();
-  if (t.dataset.stype !== undefined){ shopT = t.dataset.stype; return shopRefresh(); }
-  if (t.dataset.sstore !== undefined){ shopS = t.dataset.sstore; return shopRefresh(); }
+  if (t.dataset.stype !== undefined){ shopT = shopT === t.dataset.stype ? "" : t.dataset.stype; return shopRefresh(); }
+  if (t.dataset.sstore !== undefined){ shopS = shopS === t.dataset.sstore ? "" : t.dataset.sstore; return shopRefresh(); }
   if (t.dataset.sreset !== undefined){ shopQ = shopT = shopS = ""; const q = $("#shopq"); if (q) q.value = ""; return shopRefresh(); }
   if (t.dataset.close !== undefined) return closeInfo();
   if (t.dataset.day){ day = +t.dataset.day; render(); scrollTo(0, 0); }
