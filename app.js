@@ -335,7 +335,14 @@ function infoView(){
       <div style="margin-top:8px;padding:10px 12px;background:var(--paper);border-radius:12px;font-family:var(--mincho);font-size:17px">${esc(LODGING.jp)}</div>
       <div class="small" style="margin-top:4px">택시 기사님께 위 일본어 주소를 보여 주세요</div>
       <div style="color:var(--sub);font-size:14px;margin-top:8px">${esc(LODGING.note)}</div>
-      <a class="btn" href="https://www.google.com/maps/search/?api=1&query=${PT.hotel[0]},${PT.hotel[1]}" target="_blank" rel="noopener">📍 숙소 지도 열기</a></div>
+      <a class="btn" href="${LODGING.gmap || `https://www.google.com/maps/search/?api=1&query=${PT.hotel[0]},${PT.hotel[1]}`}" target="_blank" rel="noopener">📍 숙소 지도 열기</a>
+      ${LODGING.tel ? `<a class="btn" href="tel:${LODGING.tel}">📞 호스트 전화 ${esc(LODGING.telShow || LODGING.tel)}</a>` : ""}</div>
+    ${LODGING.steps ? `<div class="sectitle" style="font-size:16px">숙소 들어가는 법 <span class="jp">入室</span></div>
+    <div class="box">${LODGING.time ? `<div style="font-weight:700;margin:0 0 10px">🕓 ${esc(LODGING.time)}</div>` : ""}
+      ${LODGING.steps.map(st => `<div style="margin:0 0 14px"><img src="${st[0]}" alt="${esc(st[1])}" loading="lazy" style="width:100%;border-radius:12px;display:block">
+        <b style="display:block;margin-top:6px">${esc(st[1])}</b><div style="color:var(--sub);font-size:14px;margin-top:2px">${esc(st[2])}</div></div>`).join("")}
+      ${LODGING.code ? `<div style="padding:10px 12px;background:var(--paper);border-radius:12px;font-size:17px">🔑 열쇠 상자 번호 <b style="font-size:22px;letter-spacing:4px">${esc(LODGING.code)}</b></div>` : ""}
+      <div class="small" style="margin-top:6px">모르는 게 있으면 에어비앤비 메시지로 호스트에게 물어보면 돼요.</div></div>` : ""}
     ${LODGING.amen ? `<div class="sectitle" style="font-size:16px">숙소에 있는 것 <span class="jp">設備</span></div>
     <div class="box">${LODGING.amen.map(a => `<div style="margin:0 0 10px"><b>${a[0]} ${esc(a[1])}</b><div style="color:var(--sub);font-size:14px;margin-top:2px">${esc(a[2])}</div></div>`).join("")}
       <div class="small">숙소 소개글과 숙박 후기를 모은 거예요.</div>
