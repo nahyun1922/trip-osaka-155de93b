@@ -1,5 +1,5 @@
 // 화면 그리기. 일정 내용은 data.js 에 있습니다.
-const {TITLE, UPDATED, LODGING, FLIGHTS, PT, PTNAME, PTICON, DAYS, TRANSPORT, TODO, INFO, CREDITS, HAS_IMG, FOOD, SHOPLIST} = window.TRIP;
+const {TITLE, UPDATED, LODGING, FLIGHTS, PT, PTNAME, PTICON, DAYS, TRANSPORT, TODO, INFO, CREDITS, HAS_IMG, FOOD, SHOPLIST, TAXFREE} = window.TRIP;
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -298,6 +298,11 @@ function shopLocRender(){
 function shopView(){
   return `<div class="sectitle">쇼핑 리스트 <span class="jp">買物</span></div>
     <div class="small" style="margin:-4px 18px 10px">오사카에서 사 올 만한 것들을 매장별로 모았어요. 눌러 보면 가격과 사야 하는 이유가 나와요.</div>
+    ${TAXFREE ? `<div class="box"><details><summary style="cursor:pointer;font-weight:700">🧾 ${esc(TAXFREE.title)} <span class="small">${esc(TAXFREE.sub)}</span></summary>
+      <div style="margin:10px 0 12px">${esc(TAXFREE.lead)}</div>
+      ${TAXFREE.steps.map(s => `<div style="margin:0 0 12px"><b>${esc(s[0])}</b><div style="color:var(--sub);font-size:14px;margin-top:2px">${esc(s[1])}</div></div>`).join("")}
+      <div style="padding:10px 12px;background:var(--paper);border-radius:12px"><b>⚠️ 주의할 점</b><ul style="margin:6px 0 0">${TAXFREE.notes.map(n => `<li style="font-size:14px">${esc(n)}</li>`).join("")}</ul></div>
+      <a class="btn" href="${TAXFREE.url}" target="_blank" rel="noopener">📱 참고 영상 보기</a></details></div>` : ""}
     <div class="sectitle" style="font-size:16px">📍 근처 매장 찾기 <span class="jp">店探し</span></div>
     <div class="small" style="margin:-4px 18px 8px">지금 내 위치에서 가까운 매장을 구글 지도로 열어요. 마트는 라이프·이온 같은 슈퍼마켓이 다 나와요.</div>
     <div class="box" id="shopnear">${shopNear()}</div>
