@@ -125,6 +125,8 @@ button{font-family:inherit}
 .pass .k{font-size:12px;color:var(--sub)}
 .pass .big{font-family:var(--serif);font-size:24px;font-weight:700;line-height:1.1}
 .pass .mid{text-align:center;color:var(--sub);font-size:12px}
+.pass .pnr{margin-top:4px;color:var(--ink,#222);font-size:12px}.pass .pnr b{font-size:15px;letter-spacing:1px;user-select:all}
+.pass .bk{padding:8px 16px 12px;border-top:1px dashed var(--line);font-size:12px;color:var(--sub)}
 .pass .mid::before{content:"✈";display:block;color:var(--shu);font-size:18px}
 .tcard{margin:0 14px 10px;background:var(--card);border-radius:16px;border:1px solid var(--line);padding:12px 14px;display:flex;gap:12px;align-items:center}
 .tcard .ico{font-size:24px;width:44px;height:44px;display:grid;place-items:center;background:var(--paper2);border-radius:12px}
