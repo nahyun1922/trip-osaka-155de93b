@@ -352,9 +352,9 @@ function infoView(){
     <div class="box">${LODGING.amen.map(a => `<div style="margin:0 0 10px"><b>${a[0]} ${esc(a[1])}</b><div style="color:var(--sub);font-size:14px;margin-top:2px">${esc(a[2])}</div></div>`).join("")}
       <div class="small">숙소 소개글과 숙박 후기를 모은 거예요.</div>
       ${LODGING.url ? `<a class="btn" href="${LODGING.url}" target="_blank" rel="noopener">🏠 에어비앤비 숙소 페이지</a>` : ""}</div>` : ""}
-    <div class="sectitle">아직 정할 것 <span class="jp">未定</span></div><div class="box"><ul>${TODO.map(x => Array.isArray(x)
+    ${TODO.length ? `<div class="sectitle">아직 정할 것 <span class="jp">未定</span></div><div class="box"><ul>${TODO.map(x => Array.isArray(x)
       ? `<li><a href="${x[1]}" target="_blank" rel="noopener" style="color:var(--shu);font-weight:700">${esc(x[0])} ›</a></li>` : `<li>${esc(x)}</li>`).join("")}</ul>
-      <div class="small" style="margin-top:8px">빨간 글씨를 누르면 예약 페이지가 열려요.</div></div>
+      <div class="small" style="margin-top:8px">빨간 글씨를 누르면 예약 페이지가 열려요.</div></div>` : ""}
     <div class="sectitle">출처 <span class="jp">記</span></div>
     <div class="box"><div>마지막 수정 <b>${UPDATED}</b></div>
       <details style="margin-top:10px"><summary class="small" style="cursor:pointer">출처 펼쳐 보기</summary>
