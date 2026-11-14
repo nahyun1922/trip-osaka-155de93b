@@ -332,7 +332,7 @@ function transView(){
   const leg = (k, a, p) => `<div class="leg"><div><div class="k">${k} · ${esc(a[1])}</div><div class="big">${a[0]}</div></div>
       <div class="mid">${esc(a[4])}${p ? `<div class="pnr">예약번호 <b>${esc(p)}</b></div>` : ""}</div><div style="text-align:right"><div class="k">${esc(a[3])}</div><div class="big">${a[2]}</div></div></div>`;
   return `<div class="sectitle">항공편 <span class="jp">航空</span></div>` +
-    FLIGHTS.map(f => `<div class="pass"><div class="hd"><span>${f.who}</span><span>${f.n}</span></div>${leg("가는편 11/15", f.out, f.pnr && f.pnr[0])}${leg("오는편 11/18", f.back, f.pnr && f.pnr[1])}${f.bk ? `<div class="bk">${esc(f.bk)}</div>` : ""}</div>`).join("");
+    FLIGHTS.map(f => `<div class="pass"><div class="hd"><span>${f.who}</span><span>${f.n}</span></div>${leg("가는편 11/15", f.out, f.pnr && f.pnr[0])}${leg("오는편 11/18", f.back, f.pnr && f.pnr[1])}${f.bk ? `<div class="bk">${esc(f.bk)}</div>` : ""}${f.park ? `<div class="bk">${esc(f.park)}</div>` : ""}</div>`).join("");
 }
 function infoView(){
   return `<div class="sectitle">숙소 <span class="jp">宿</span></div>
