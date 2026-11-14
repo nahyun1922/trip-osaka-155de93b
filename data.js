@@ -835,7 +835,7 @@ window.TRIP = {
      "ic": "🚆",
      "pt": "nambaparks",
      "b": "다이코쿠야 → 난카이 난바역",
-     "n": "약 15분 · 180엔 · 신이마미야역(걸어서 약 10분) → 난바역 내림 · 역이 난바파크스와 바로 이어짐",
+     "n": "약 15분 · 180엔 · 신이마미야역 → 난바역 내림",
      "from": "南海 新今宮駅",
      "to": "南海 なんば駅",
      "map": "南海 なんば駅"
@@ -843,12 +843,13 @@ window.TRIP = {
     {
      "t": "20:20 ~ 21:10",
      "at": "20:20",
-     "ic": "✨",
+     "img": "nambaparks",
+     "pos": "50% 45%",
      "pt": "nambaparks",
      "info": "nambaparks",
      "b": "난바 히카리타비 · 난바파크스 일루미네이션",
      "loc": "なんば光旅 · なんばパークス",
-     "n": "17~24시 · 무료 · 9층에서 2층까지 내려오며 구경 · 빛의 폭포(9층~2층)·빛나는 초원(8층)·크리스마스트리(2층)",
+     "n": "17~24시 · 무료 · 9층에서 2층까지 걸어 내려오며 구경",
      "map": "なんばパークス"
     },
     {
@@ -1890,6 +1891,10 @@ window.TRIP = {
     [
      "웨더뉴스 · なんば光旅",
      "https://weathernews.jp/illumi/spot/3602026/?fm=pref"
+    ],
+    [
+     "사진 · Wikimedia Commons The illuminations at Namba Parks (4).jpg, Tokumeigakarinoaoshima (CC BY-SA 4.0)",
+     "https://commons.wikimedia.org/wiki/File:The_illuminations_at_Namba_Parks_(4).jpg"
     ]
    ]
   },
@@ -3518,6 +3523,10 @@ window.TRIP = {
  },
  "CREDITS": [
   [
+   "사진: 난바파크스 일루미네이션 · Tokumeigakarinoaoshima · Wikimedia Commons (CC BY-SA 4.0)",
+   "https://commons.wikimedia.org/wiki/File:The_illuminations_at_Namba_Parks_(4).jpg"
+  ],
+  [
    "쇼핑 제품사진: 판다안닌도후·폴로쇼콜라 · All About(allabout.co.jp)",
    "https://news.allabout.co.jp/articles/o/81765/"
   ],
@@ -3988,6 +3997,7 @@ window.TRIP = {
   "sun",
   "todaiji",
   "tsutenkaku",
+  "nambaparks",
   "kawasaki",
   "shigetsu",
   "jon"
