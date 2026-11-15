@@ -65,6 +65,7 @@ function entry(it, cls, num){
       <div class="tx">${it.loc ? `<div class="loc">${esc(it.loc)}</div>` : ""}<div class="h">${it.meal ? "🍴 " : ""}${esc(it.b)}</div>
       ${it.n ? `<div class="n">${clean(it.n)}</div>` : ""}
       ${story || story2 || mp ? `<div class="acts">${story}${story2}${mp}</div>` : ""}
+      ${it.alt ? `<div class="alt"><div class="ah">${esc(it.alt.h)}</div>${it.alt.items.map(a => `<div class="ai"><div><b>${esc(a[0])}</b><span>${esc(a[1])}</span></div><a href="${gmap(a[2])}" target="_blank" rel="noopener">📍 지도</a></div>`).join("")}</div>` : ""}
       ${nearRow(it)}</div></div>`;
   } else {
     type = it.kind === "move" ? "mv" : "cp";
